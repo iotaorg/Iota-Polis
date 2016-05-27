@@ -1,20 +1,26 @@
 language: perl
 perl:
-  - "perl-5.20.2"
+  - "5.18"
+addons:
+  postgresql: 9.3
+services:
+  - redis-server
 env:
   - PERL_CPANM_OPT="-v --mirror http://cpan.cpantesters.org/ --mirror http://search.cpan.org/CPAN --mirror http://cpan.mirrors.travis-ci.org --cascade-search --notest --force --skip-satisfied --no-interactive"
 before_install:
-  - perlbrew list; perlbrew use perl-5.20.2;
-  - sudo apt-get install postgresql libdbd-pg-perl
-  - cpanm --quiet --notest App::Sqitch
-  - env; find  ~/ | grep sqitch | grep bin; 
+  - sudo apt-get update -q
+  - sudo apt-get install libdbd-pg-perl
+  - cpanm -n DBIx::Class DBD::Pg
+  - cpanm -n App::Sqitch
+  - sqitch --version
+
+install:
   - cpanm -n Module::Install Catalyst::Devel Text::CSV JSON::Any MooseX::Types::JSON
-  - cpanm -n DBIx::Class
   - cpanm -n DBIx::Class::Optional::Dependencies
-  - cpanm -n Catalyst::Plugin::Assets
+  - cpanm -n --installdeps .
 before_script:
-  - psql -c 'create database iota_production;' -U postgres
-  - sqitch -d iota_production deploy
+  - psql -c 'create database iota_dev;' -U postgres
+  - sqitch deploy -t local
 notifications:
   irc:
     channels:
