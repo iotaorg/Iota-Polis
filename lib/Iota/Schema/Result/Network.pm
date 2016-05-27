@@ -103,6 +103,29 @@ __PACKAGE__->table("network");
   default_value: false
   is_nullable: 1
 
+=head2 template_name
+
+  data_type: 'text'
+  is_nullable: 1
+  original: {data_type => "varchar"}
+
+=head2 axis_name
+
+  data_type: 'text'
+  is_nullable: 1
+  original: {data_type => "varchar"}
+
+=head2 description
+
+  data_type: 'text'
+  is_nullable: 1
+  original: {data_type => "varchar"}
+
+=head2 text_content
+
+  data_type: 'json'
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -142,6 +165,26 @@ __PACKAGE__->add_columns(
   { data_type => "boolean", is_nullable => 1 },
   "topic",
   { data_type => "boolean", default_value => \"false", is_nullable => 1 },
+  "template_name",
+  {
+    data_type   => "text",
+    is_nullable => 1,
+    original    => { data_type => "varchar" },
+  },
+  "axis_name",
+  {
+    data_type   => "text",
+    is_nullable => 1,
+    original    => { data_type => "varchar" },
+  },
+  "description",
+  {
+    data_type   => "text",
+    is_nullable => 1,
+    original    => { data_type => "varchar" },
+  },
+  "text_content",
+  { data_type => "json", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -282,8 +325,8 @@ Composing rels: L</network_users> -> user
 __PACKAGE__->many_to_many("users", "network_users", "user");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-07-03 15:41:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:fzutxdeuVucjRgETH1zfrw
+# Created by DBIx::Class::Schema::Loader v0.07043 @ 2016-05-27 18:34:24
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:H3rc3d+TtjKfWuntGxAE6A
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;
