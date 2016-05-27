@@ -12,8 +12,7 @@ BEGIN { extends 'Catalyst::Controller::REST' }
 
 __PACKAGE__->config( default => 'application/json' );
 
-sub base : Chained('/api/userpublic/object') : PathPart('indicator') :
-  CaptureArgs(0) {
+sub base : Chained('/api/userpublic/object') : PathPart('indicator') : CaptureArgs(0) {
     my ( $self, $c ) = @_;
 
     my @users_ids = @{ $c->stash->{network_data}{users_ids} };
@@ -37,8 +36,7 @@ sub object : Chained('base') : PathPart('') : CaptureArgs(1) {
 
 }
 
-sub all_variable : Chained('/api/userpublic/base') :
-  PathPart('indicator/variable') : Args(0) : ActionClass('REST') {
+sub all_variable : Chained('/api/userpublic/base') : PathPart('indicator/variable') : Args(0) : ActionClass('REST') {
     my ( $self, $c ) = @_;
 
 }
@@ -50,8 +48,7 @@ sub all_variable_GET {
     $controller->all_variable_GET($c);
 }
 
-sub indicator : Chained('object') : PathPart('') : Args(0) :
-  ActionClass('REST') {
+sub indicator : Chained('object') : PathPart('') : Args(0) : ActionClass('REST') {
     my ( $self, $c ) = @_;
 
 }
@@ -63,8 +60,7 @@ sub indicator_GET {
     $controller->indicator_GET($c);
 
     my $indicator = $c->stash->{indicator_ref};
-    my $conf      = $indicator->user_indicator_configs->search(
-        { user_id => $c->stash->{user_id} } )->next;
+    my $conf = $indicator->user_indicator_configs->search( { user_id => $c->stash->{user_id} } )->next;
 
     if ($conf) {
         $c->stash->{rest}{user_indicator_config} = {
@@ -74,8 +70,7 @@ sub indicator_GET {
     }
 }
 
-sub resumo : Chained('base') : PathPart('') : Args( 0 ) :
-  ActionClass('REST') { }
+sub resumo : Chained('base') : PathPart('') : Args( 0 ) : ActionClass('REST') { }
 
 =pod
 
@@ -175,10 +170,10 @@ sub resumo_GET {
     my ( $self, $c ) = @_;
     my $ret;
     my $max_periodos =
-      exists $c->req->params->{number_of_periods}
-      && $c->req->params->{number_of_periods} =~ /^[0-9]+$/
+      exists $c->req->params->{number_of_periods} && $c->req->params->{number_of_periods} =~ /^[0-9]+$/
       ? $c->req->params->{number_of_periods}
       : 4;
+
     my $from_date = $c->req->params->{from_date};
 
     eval {
@@ -187,11 +182,9 @@ sub resumo_GET {
 
         my @hide_indicator =
           map { $_->indicator_id }
-          $c->stash->{user_obj}
-          ->user_indicator_configs->search( { hide_indicator => 1 } )->all;
+          $c->stash->{user_obj}->user_indicator_configs->search( { hide_indicator => 1 } )->all;
 
-        my $show_user_private_indicators =
-          $c->stash->{show_user_private_indicators} = { $user_id => 1 };
+        my $show_user_private_indicators = $c->stash->{show_user_private_indicators} = { $user_id => 1 };
 
         my $network_ids = [
             do {
@@ -200,11 +193,9 @@ sub resumo_GET {
                     map { $_->network_id }
                       $_->network_users
                   } grep { defined $_->city_id }
-                  grep   { $show_user_private_indicators->{ $_->id } }
-                  @{ $c->stash->{current_all_users} };
+                  grep   { $show_user_private_indicators->{ $_->id } } @{ $c->stash->{current_all_users} };
               }
         ];
-
 
         my $rs = $c->model('DB::Indicator')->filter_visibilities(
             user_id      => $user_id,
@@ -213,8 +204,7 @@ sub resumo_GET {
             {
                 is_fake => 0,
 
-
-#'indicator_network_configs_one.network_id' => [ undef, map { $_->id } @{ $c->stash->{networks} } ],
+                #'indicator_network_configs_one.network_id' => [ undef, map { $_->id } @{ $c->stash->{networks} } ],
                 'me.id' => { '-not_in' => \@hide_indicator }
             },
             { prefetch => [ 'indicator_variations', 'axis' ] }
@@ -223,7 +213,7 @@ sub resumo_GET {
         my $rs_confs = $c->model('DB::IndicatorNetworkConfig')->search(
             {
                 'me.indicator_id' => { '-not_in' => \@hide_indicator },
-                'me.network_id' => $c->stash->{network}->id
+                'me.network_id'   => $c->stash->{network}->id
             },
             {
                 result_class => 'DBIx::Class::ResultClass::HashRefInflator'
@@ -246,18 +236,17 @@ sub resumo_GET {
 
             if ( !exists $periods_begin->{ $indicator->period } ) {
                 $periods_begin->{ $indicator->period } =
-                  $c->model('DB')
-                  ->schema->voltar_periodo( $from_date, $indicator->period,
-                    $max_periodos )->{voltar_periodo};
+                  $c->model('DB')->schema->voltar_periodo( $from_date, $indicator->period, $max_periodos )
+                  ->{voltar_periodo};
             }
         }
+
         while ( my ( $periodo, $from_this_date ) = each %$periods_begin ) {
 
             my $custom_axis  = {};
             my $user_axis_rs = $c->model('DB::UserIndicatorAxisItem')->search(
                 {
-                    'me.indicator_id' =>
-                      { 'in' => [ keys %{ $indicators->{$periodo} } ] },
+                    'me.indicator_id'             => { 'in' => [ keys %{ $indicators->{$periodo} } ] },
                     'user_indicator_axis.user_id' => $user_id,
                 },
                 {
@@ -266,16 +255,14 @@ sub resumo_GET {
                 }
             );
             while ( my $row = $user_axis_rs->next ) {
-                push @{ $custom_axis->{ $row->indicator_id } },
-                  $row->user_indicator_axis->name;
+                push @{ $custom_axis->{ $row->indicator_id } }, $row->user_indicator_axis->name;
             }
 
             my $values_rs = $c->model('DB::IndicatorValue')->search(
                 {
-                    'me.indicator_id' =>
-                      { 'in' => [ keys %{ $indicators->{$periodo} } ] },
-                    'me.user_id'    => $user_id,
-                    'me.valid_from' => {
+                    'me.indicator_id' => { 'in' => [ keys %{ $indicators->{$periodo} } ] },
+                    'me.user_id'      => $user_id,
+                    'me.valid_from'   => {
                         ( $from_date && $from_date eq $from_this_date )
                         ?
 
@@ -295,24 +282,16 @@ sub resumo_GET {
             my $indicator_values = {};
 
             while ( my $row = $values_rs->next ) {
-                $indicator_values->{ $row->{indicator_id} }
-                  { $row->{valid_from} }{ $row->{variation_name} } = [
-                    $row
-                      ->{value} #, $row->{sources} TODO usar a fonte no retorno?
-                  ];
+                $indicator_values->{ $row->{indicator_id} }{ $row->{valid_from} }{ $row->{variation_name} } = [
+                    $row->{value}    #, $row->{sources} TODO usar a fonte no retorno?
+                ];
             }
 
-            while ( my ( $indicator_id, $indicator ) =
-                each %{ $indicators->{$periodo} } )
-            {
+            while ( my ( $indicator_id, $indicator ) = each %{ $indicators->{$periodo} } ) {
                 my $item = {};
-                while ( my ( $from, $variations ) =
-                    each %{ $indicator_values->{$indicator_id} } )
-                {
+                while ( my ( $from, $variations ) = each %{ $indicator_values->{$indicator_id} } ) {
 
-                    $item->{$from}{nome} =
-                      Iota::IndicatorChart::PeriodAxis::get_label_of_period(
-                        $from, $periodo );
+                    $item->{$from}{nome} = Iota::IndicatorChart::PeriodAxis::get_label_of_period( $from, $periodo );
 
                     # nao eh variado
                     if ( exists $variations->{''} ) {
@@ -321,7 +300,7 @@ sub resumo_GET {
 
                     }
                     else {
-# TODO ler do indicador qual o totalization_method do indicador e fazer conforme isso
+                        # TODO ler do indicador qual o totalization_method do indicador e fazer conforme isso
                         my $sum = undef;
                         foreach my $variation ( keys %$variations ) {
                             $sum ||= 0;
@@ -332,17 +311,13 @@ sub resumo_GET {
                         }
                         $item->{$from}{valor} = $sum;
 
-               # gera novamente na ordem e com as variacoes que nao estao salvas
+                        # gera novamente na ordem e com as variacoes que nao estao salvas
                         my @variations;
-                        foreach my $var ( sort { $a->order <=> $b->order }
-                            $indicator->indicator_variations->all )
-                        {
+                        foreach my $var ( sort { $a->order <=> $b->order } $indicator->indicator_variations->all ) {
                             push @variations,
                               {
-                                name => $var->name,
-                                value =>
-                                  $item->{$from}{variations}{ $var->name }
-                                  {value}
+                                name  => $var->name,
+                                value => $item->{$from}{variations}{ $var->name }{value}
                               };
                         }
                         $item->{$from}{variations} = \@variations;
@@ -396,31 +371,26 @@ sub resumo_GET {
             while ( my ( $periodo, $ind_info ) = each %{$periodos} ) {
                 my $indicadores = $ind_info->{indicadores};
 
-        # procura pelas ultimas N periodos de novo, so que consideranto todos os
-        # indicadores duma vez
+                # procura pelas ultimas N periodos de novo, so que consideranto todos os
+                # indicadores duma vez
                 my $datas = {};
                 my @datas_ar;
 
                 foreach my $in (@$indicadores) {
-                    $datas->{$_}{nome} = $in->{valores}{$_}{nome}
-                      for ( keys %{ $in->{valores} } );
+                    $datas->{$_}{nome} = $in->{valores}{$_}{nome} for ( keys %{ $in->{valores} } );
 
-                    $datas->{$_}{variations} = $in->{valores}{$_}{variations}
-                      for ( keys %{ $in->{valores} } );
+                    $datas->{$_}{variations} = $in->{valores}{$_}{variations} for ( keys %{ $in->{valores} } );
 
                 }
 
-     # tira data dos valores vazios
-     # inseridos no primeiro loop do indicador (caso ele apareca em dois grupos)
+                # tira data dos valores vazios
+                # inseridos no primeiro loop do indicador (caso ele apareca em dois grupos)
                 my ( $year, $month, $day ) =
                   ( split q/-/, $periods_begin->{yearly} );
 
                 my @date;
-                push @date,
-                  ( join q/-/, Add_Delta_YM( $year, $month, $day, $_, 0 ) )
-                  for ( 0 .. 3 );
+                push @date, ( join q/-/, Add_Delta_YM( $year, $month, $day, $_, 0 ) ) for ( 0 .. 3 );
 
-                use DDP;
                 delete $datas->{''};
                 my $i = $max_periodos == 0 ? 1 : $max_periodos;
                 for my $d (@date) {
@@ -434,26 +404,23 @@ sub resumo_GET {
                     push @datas_ar,
                       {
                         data => $d,
-                        nome =>
-                          Iota::IndicatorChart::PeriodAxis::get_label_of_period(
-                            $d, $periodo
-                          )
+                        nome => Iota::IndicatorChart::PeriodAxis::get_label_of_period( $d, $periodo )
                       };
 
                 }
 
-#                foreach my $data ( sort { $b cmp $a } keys %{$datas} ) {
-#                    last if $i <= 0;
-#                    $datas_ar[ --$i ] = {
-#                        data => $data,
-#                        nome =>
-#                          Iota::IndicatorChart::PeriodAxis::get_label_of_period(
-#                            $data, $periodo
-#                          )
-#                    };
-#                }
-#
-# pronto, agora @datas ja tem a lista correta e na ordem!
+                #                foreach my $data ( sort { $b cmp $a } keys %{$datas} ) {
+                #                    last if $i <= 0;
+                #                    $datas_ar[ --$i ] = {
+                #                        data => $data,
+                #                        nome =>
+                #                          Iota::IndicatorChart::PeriodAxis::get_label_of_period(
+                #                            $data, $periodo
+                #                          )
+                #                    };
+                #                }
+                #
+                # pronto, agora @datas ja tem a lista correta e na ordem!
                 foreach my $in (@$indicadores) {
                     my @valores;
                     foreach my $data (@datas_ar) {
@@ -475,12 +442,9 @@ sub resumo_GET {
                             next;
                         }
 
-                        if (
-                            exists $in->{valores}{ $data->{data} }{variations} )
-                        {
+                        if ( exists $in->{valores}{ $data->{data} }{variations} ) {
                             $defined++;
-                            push @variacoes,
-                              $in->{valores}{ $data->{data} }{variations};
+                            push @variacoes, $in->{valores}{ $data->{data} }{variations};
                         }
                         else {
                             push @variacoes, undef;
@@ -511,12 +475,9 @@ sub resumo_GET {
 
                 while ( my ( $periodo, $indicadores_gp ) = each %{$periodos} ) {
 
-                    foreach
-                      my $indicador ( @{ $indicadores_gp->{indicadores} } )
-                    {
+                    foreach my $indicador ( @{ $indicadores_gp->{indicadores} } ) {
 
-                        $indicador->{$_} = $c->loc( $indicador->{$_} )
-                          for qw/explanation formula_human name source/;
+                        $indicador->{$_} = $c->loc( $indicador->{$_} ) for qw/explanation formula_human name source/;
 
                     }
 
@@ -531,8 +492,7 @@ sub resumo_GET {
     }
 }
 
-sub indicator_status : Chained('base') : PathPart('status') : Args( 0 ) :
-  ActionClass('REST') { }
+sub indicator_status : Chained('base') : PathPart('status') : Args( 0 ) : ActionClass('REST') { }
 
 =pod
 
@@ -562,8 +522,7 @@ sub indicator_status_GET {
 
         my @hide_indicator =
           map { $_->indicator_id }
-          $c->stash->{user_obj}
-          ->user_indicator_configs->search( { hide_indicator => 1 } )->all;
+          $c->stash->{user_obj}->user_indicator_configs->search( { hide_indicator => 1 } )->all;
         my $rs = $c->stash->{collection}->search(
             {
                 'me.id' => { '-not_in' => \@hide_indicator }
@@ -577,16 +536,13 @@ sub indicator_status_GET {
         my $region_id = $c->req->params->{region_id};
 
         # % em relacao a meta # WARNING non-sense for a while.
-        my $rs_x =
-          $c->model('DB')->resultset( 'ViewIndicatorGoalRatio' . $region_tb )
-          ->search_rs(
+        my $rs_x = $c->model('DB')->resultset( 'ViewIndicatorGoalRatio' . $region_tb )->search_rs(
             undef,
             {
-                'bind' =>
-                  [ $user_id, ( $c->req->params->{region_id} ) x !!$region_tb ],
+                'bind' => [ $user_id, ( $c->req->params->{region_id} ) x !!$region_tb ],
                 result_class => 'DBIx::Class::ResultClass::HashRefInflator'
             }
-          );
+        );
         my $ratios = {};
         while ( my $f = $rs_x->next ) {
             $ratios->{ delete $f->{id} } = $f;
@@ -623,9 +579,7 @@ sub indicator_status_GET {
           )->get_column('id')->as_query;
 
         # status
-        $rs =
-          $c->model('DB')->resultset( 'ViewIndicatorStatus' . $region_tb )
-          ->search_rs(
+        $rs = $c->model('DB')->resultset( 'ViewIndicatorStatus' . $region_tb )->search_rs(
             {
                 id => { 'in' => $indicators_rs }
             },
@@ -636,9 +590,8 @@ sub indicator_status_GET {
                   $region_tb
                 ? [
                     [ { sqlt_datatype => 'int[]' }, \@indicator_ids ],
-                    $user_id,   $region_id, $user_id,
-                    $user_id,   $region_id, $user_id,
-                    $region_id, $user_id,   $region_id
+                    $user_id, $region_id, $user_id, $user_id, $region_id,
+                    $user_id, $region_id, $user_id, $region_id
                   ]
                 :    # sem regiao
                   [
@@ -648,7 +601,7 @@ sub indicator_status_GET {
                   ],
                 result_class => 'DBIx::Class::ResultClass::HashRefInflator'
             }
-          );
+        );
 
         my $total_nao_preenchido = 0;
         my $total_algum_valor    = 0;
