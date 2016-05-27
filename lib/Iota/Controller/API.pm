@@ -127,18 +127,6 @@ sub public_lexicons : Chained('root') PathPart('public/lexicons') Args(0) {
 sub lexicons : Chained('base') PathPart('lexicons') Args(0) {
     my ( $self, $c ) = @_;
 
-    my $ref = $c->req->params->{lex};
-    $ref = [$ref] unless ref $ref eq 'ARRAY';
-
-    $c->set_lang( $c->config->{default_lang} );
-    foreach my $v (@$ref) {
-        next
-          if $v =~ /^\s*$/
-          || $v !~ /[a-z]/i
-          || $v =~ /^\s*[0-9]+\s*$/;
-
-        $c->loc( $v, 'pt-br' );
-    }
 
     $self->status_ok( $c, entity => { saved => 1 } );
 }
@@ -198,37 +186,6 @@ sub logged_in : Chained('root') : PathPart('') : CaptureArgs(0) {
 sub base : Chained('logged_in') : PathPart('') : CaptureArgs(0) {
     my ( $self, $c ) = @_;
 
-    my $inp = $c->req->params;
-    if (   !exists $c->stash->{rest}{error}
-        && $c->req->method =~ /PUT|POST/
-        && ref $inp eq 'HASH'
-        && !exists $ENV{HARNESS_ACTIVE} ) {
-
-        $c->set_lang( $c->config->{default_lang} );
-
-        foreach my $k ( keys %{$inp} ) {
-            next
-              if $k =~ /password/
-              || $k =~ /email/
-              || $k =~ /formula/
-              || $k =~ /polygon_path/
-              || $k =~ /name_url/
-              || $k =~ /(city|user|state|country|city\.region)\.(create|update)\.name/
-              || $k eq 'api_key'
-              || $k eq 'arquivo'
-              || $k eq 'lex';
-
-            my $v = $inp->{$k};
-            next if ref $v ne '';
-
-            next
-              if $v =~ /^\s*$/
-              || $v !~ /[a-z]/i
-              || $v =~ /^\s*[0-9]+\s*$/;
-
-            $c->loc($v);
-        }
-    }
 }
 
 1;
