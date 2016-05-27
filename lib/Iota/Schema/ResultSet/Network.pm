@@ -21,10 +21,14 @@ sub verifiers_specs {
         create => Data::Verifier->new(
             filters => [qw(trim)],
             profile => {
-                created_by   => { required => 1, type => 'Int' },
-                name         => { required => 1, type => 'Str' },
-                institute_id => { required => 1, type => 'Int' },
-                domain_name  => { required => 1, type => 'Str' },
+                created_by    => { required => 1, type => 'Int' },
+                name          => { required => 1, type => 'Str' },
+                institute_id  => { required => 1, type => 'Int' },
+                domain_name   => { required => 1, type => 'Str' },
+                template_name => { required => 1, type => 'Str' },
+                axis_name     => { required => 1, type => 'Str' },
+                description   => { required => 1, type => 'Str' },
+                text_content  => { required => 1, type => 'Str' },
             },
         ),
 
@@ -36,6 +40,13 @@ sub verifiers_specs {
                 institute_id => { required => 0, type => 'Int' },
                 domain_name  => { required => 0, type => 'Str' },
                 topic        => { required => 0, type => 'Bool' },
+
+
+                template_name => { required => 0, type => 'Str' },
+                axis_name     => { required => 0, type => 'Str' },
+                description   => { required => 0, type => 'Str' },
+                text_content  => { required => 0, type => 'Str' },
+
             },
         ),
 

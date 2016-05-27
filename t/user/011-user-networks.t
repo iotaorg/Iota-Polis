@@ -234,6 +234,10 @@ eval {
                     'network.create.name_url'     => 'prefeitura-2',
                     'network.create.domain_name'  => 'foo-domain.org',
                     'network.create.institute_id' => $institute->{id},
+                    'network.create.template_name' => 'foo',
+                    'network.create.axis_name'     => 'Aba',
+                    'network.create.description'   => 'lala',
+                    'network.create.text_content'  => '{}',
 
                 ]
             );

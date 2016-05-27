@@ -32,10 +32,14 @@ eval {
             ( $res, $c ) = ctx_request(
                 POST '/api/network',
                 [
-                    api_key                       => 'test',
-                    'network.create.name'         => 'prefeitura nao lembro o nome',
-                    'network.create.domain_name'  => 'foo-domain.org',
-                    'network.create.institute_id' => '1',
+                    api_key                        => 'test',
+                    'network.create.name'          => 'prefeitura nao lembro o nome',
+                    'network.create.domain_name'   => 'foo-domain.org',
+                    'network.create.institute_id'  => '1',
+                    'network.create.template_name' => 'foo',
+                    'network.create.axis_name'     => 'Aba',
+                    'network.create.description'   => 'lala',
+                    'network.create.text_content'  => '{}',
 
                 ]
             );
