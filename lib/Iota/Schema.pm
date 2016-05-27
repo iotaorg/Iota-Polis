@@ -1,5 +1,4 @@
 use utf8;
-
 package Iota::Schema;
 
 # Created by DBIx::Class::Schema::Loader
@@ -12,8 +11,9 @@ use base 'DBIx::Class::Schema';
 
 __PACKAGE__->load_namespaces;
 
-# Created by DBIx::Class::Schema::Loader v0.07033 @ 2013-03-06 13:39:34
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:R50tCzP/NQTGAx+Vj3+AhQ
+
+# Created by DBIx::Class::Schema::Loader v0.07043 @ 2016-05-27 18:12:18
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:qA1+OpZC2mzGrXTME09Wcg
 
 sub AUTOLOAD {
     ( my $name = our $AUTOLOAD ) =~ s/.*:://;
