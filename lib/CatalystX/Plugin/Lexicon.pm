@@ -104,6 +104,7 @@ where origin_lang='pt-br' and lang='es' and lex_key in (select lex_value from le
 
 sub loc {
     my ( $c, $text, $origin_lang, @conf ) = @_;
+    return $text; # otimizando, ja que só temos pt-br no polis.
 
     return $text if exists $ENV{HARNESS_ACTIVE} && $ENV{HARNESS_ACTIVE};
     return $text if ( !defined $text || $text =~ /^\s+$/ );
