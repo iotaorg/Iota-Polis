@@ -210,7 +210,7 @@ sub action_specs {
                 }
 
             }
-            elsif ( $region->depth_level == 3 ) {
+            elsif ( $region->depth_level >= 3 ) {
                 my $upper = $region->upper_region;
 
                 die "upper region valid date cannot be null\n" unless ( $upper->subregions_valid_after );
@@ -361,7 +361,7 @@ sub _put {
             $values{active_value} = 1;
         }
     }
-    elsif ( $region->depth_level == 3 ) {
+    elsif ( $region->depth_level >= 3 ) {
         my $upper = $region->upper_region->discard_changes;
 
         die "upper region valid date cannot be null\n" unless ( $upper->subregions_valid_after );

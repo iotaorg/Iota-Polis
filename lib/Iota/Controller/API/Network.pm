@@ -92,7 +92,7 @@ sub network_GET {
                   qw(
                   id name name_url created_at created_by
 
-                  institute_id domain_name
+                  institute_id domain_name template_name axis_name description text_content
                   )
             )
         }
@@ -206,7 +206,7 @@ sub list_GET {
                   qw(
                   id name name_url created_at created_by
 
-                  institute_id domain_name
+                  institute_id domain_name template_name axis_name description text_content
                   )
             ),
             url => $c->uri_for_action(

@@ -38,7 +38,6 @@ sub object : Chained('base') : PathPart('') : CaptureArgs(1) {
 
     $c->stash->{object} = $c->stash->{collection}->search_rs( { 'me.id' => $id } );
     $c->stash->{object}->count > 0 or $c->detach('/error_404');
-
 }
 
 sub cap_user_file : Chained('object') : PathPart('arquivo') : CaptureArgs(1) {

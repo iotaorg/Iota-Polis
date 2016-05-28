@@ -146,7 +146,7 @@ sub verifiers_specs {
                         my $network_ids = $r->get_value('network_ids');
 
                         # deixa o validate do networks_ids se virar sozinho!
-                        if ( $network_ids ne 'DO_NOT_UPDATE' ) {
+                        if ( $network_ids && $network_ids ne 'DO_NOT_UPDATE' ) {
                             return 1;
                         }
 
