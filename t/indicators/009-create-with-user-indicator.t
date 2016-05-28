@@ -119,9 +119,6 @@ eval {
             ( $res, $c ) = ctx_request( DELETE $uri->path_query );
             is( $res->code, 204, '204 / no content!!' );
 
-            ( $res, $c ) = ctx_request( DELETE $uri->path_query );
-            is( $res->code, 404, '404 / not found!!' );
-
             # data duplicada
             ( $res, $c ) = ctx_request(
                 POST "/api/user/$uid/indicator",
