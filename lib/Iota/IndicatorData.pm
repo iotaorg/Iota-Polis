@@ -184,6 +184,8 @@ sub upsert {
             )->all
         };
 
+
+
         #use DDP; p "user vs inst" if $DEBUG;
         #use DDP; p $user_vs_institute if $DEBUG;
         $self->_merge_regions_values(
@@ -276,6 +278,7 @@ sub upsert {
 
             #   use DDP; p $where;
             $indval_rs->search($where)->delete;
+            use DDP; p $results;
 
             while ( my ( $region_id, $region_data ) = each %$results ) {
                 undef $region_id if $region_id eq 'null';
@@ -307,6 +310,7 @@ sub upsert {
                                     region_id => $region_id,
 
                                 };
+                                use DDP; p $ins;
                                 $indval_rs->create($ins);
 
                             }
@@ -475,7 +479,7 @@ sub _get_values_periods_region {
         $out->{ $row->{active_value} }{ $row->{region_id} }{ $row->{user_id} }{ $row->{valid_from} }
           { $row->{variable_id} } = [ $row->{value}, $row->{source}, $row->{observations} ];
     }
-
+use DDP; p $out;
     return $out;
 }
 

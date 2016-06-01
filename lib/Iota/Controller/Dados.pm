@@ -496,6 +496,7 @@ sub date_validation {
 
     return 1;
 }
+=pod
 ##################################################
 ### be happy to read bellow this line!
 
@@ -637,4 +638,5 @@ for my $chain (
         " );
     }
 }
+=cut
 1;

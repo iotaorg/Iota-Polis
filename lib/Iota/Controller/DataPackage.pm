@@ -273,7 +273,7 @@ sub _download {
         $self->status_ok( $c, entity => $ret );
     }
 }
-
+=pod
 for my $chain (
     qw/institute_load network_cidade cidade_regiao network_indicator home_network_indicator cidade_regiao_indicator/) {
     for my $tipo (qw/json/) {
@@ -290,5 +290,6 @@ for my $chain (
         " );
     }
 }
+=cut
 1;
 

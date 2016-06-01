@@ -22,6 +22,8 @@ sub year_obj : Chained('year_base') : PathPart('') : CaptureArgs(1) {
 
     $self->status_forbidden( $c, message => "access denied", ), $c->detach unless $year =~ /^[0-9]{4}$/;
 
+    $c->res->header('Cache-Control', 'max-age=2592000');
+
     $c->stash->{year} = $year;
 }
 

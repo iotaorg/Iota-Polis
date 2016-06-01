@@ -38,7 +38,7 @@ sub verifiers_specs {
                 },
 
                 region_id => {
-                    required => 0,
+                    required => 1,
                     type     => 'Int',
                 },
 
@@ -67,19 +67,20 @@ sub verifiers_specs {
                             schema  => $schema
                         );
                         my ($any_var) = $f->variables;
-
                         my $var = $schema->resultset('Variable')->find( { id => $any_var } );
                         my $date = DateTimeX::Easy->new( $r->get_value('valid_from') )->datetime;
 
                         my $valid_from =
                           eval { $schema->f_extract_period_edge( ( $var ? $var->period : 'yearly' ), $date ) }
                           ->{period_begin};
+use DDP; p $valid_from;
 
                         return $self->search(
                             {
                                 indicator_id => $r->get_value('indicator_id'),
                                 user_id      => $r->get_value('user_id'),
-                                valid_from   => $valid_from
+                                valid_from   => $valid_from,
+                                ($r->get_value('region_id') ? (region_id => $r->get_value('region_id')) : ()),
                             }
                         )->count == 0;
 

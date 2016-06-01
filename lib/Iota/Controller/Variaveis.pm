@@ -427,6 +427,7 @@ sub download_variables_GET {
     $self->status_ok( $c, entity => { data => \@objs } );
 }
 
+=pod
 ##################################################
 
 for my $chain (
@@ -481,4 +482,5 @@ for my $chain (qw/institute_load network_cidade network_indicator home_network_i
         " );
     }
 }
+=cut
 1;

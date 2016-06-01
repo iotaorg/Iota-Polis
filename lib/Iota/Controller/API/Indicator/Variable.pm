@@ -440,7 +440,6 @@ sub values_GET {
                     result_class => 'DBIx::Class::ResultClass::HashRefInflator'
                 }
             );
-
             my $x = 0;
             $hash->{header}{ $_->{variable}{name} } = $x++ foreach (@variables);
 
@@ -872,11 +871,14 @@ sub by_period_GET {
                     'me.user_id'    => $c->stash->{user_id} || $c->user->id,
                     (
                         'me.region_id'    => $region_id,
-                        'me.active_value' => $active_value
+                        'me.active_value' => $active_value,
+
+                        (!$active_value ? ( generated_by_compute => undef ) : ())
                     ) x !!$region_id
-                }
+                },
+                { order_by => {-desc => 'end_ts'}, rows => 1 }
             );
-            my $value = $rsx->first;
+            my $value = $rsx->next;
             if ($value) {
                 $rowx = {
                     %{$rowx},

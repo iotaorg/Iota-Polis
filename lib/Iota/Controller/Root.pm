@@ -77,8 +77,8 @@ sub error_404 : Private {
     my ( $self, $c, $foo ) = @_;
     my $x = $c->req->uri;
 
-    eval { $c->forward('/institute_load') }
-      if !exists $c->stash->{institute_loaded};
+    #eval { $c->forward('/institute_load') }
+    #  if !exists $c->stash->{institute_loaded};
 
     $c->stash(
         custom_wrapper => 'site/iota_wrapper',
