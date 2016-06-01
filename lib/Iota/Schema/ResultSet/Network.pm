@@ -29,6 +29,7 @@ sub verifiers_specs {
                 axis_name     => { required => 1, type => 'Str' },
                 description   => { required => 1, type => 'Str' },
                 text_content  => { required => 1, type => 'Str' },
+                tags          => { required => 0, type => 'Str' },
             },
         ),
 
@@ -41,11 +42,11 @@ sub verifiers_specs {
                 domain_name  => { required => 0, type => 'Str' },
                 topic        => { required => 0, type => 'Bool' },
 
-
                 template_name => { required => 0, type => 'Str' },
                 axis_name     => { required => 0, type => 'Str' },
                 description   => { required => 0, type => 'Str' },
                 text_content  => { required => 0, type => 'Str' },
+                tags          => { required => 0, type => 'Str' },
 
             },
         ),

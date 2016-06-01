@@ -126,6 +126,17 @@ __PACKAGE__->table("network");
   data_type: 'json'
   is_nullable: 1
 
+=head2 tags
+
+  data_type: 'text'
+  is_nullable: 1
+  original: {data_type => "varchar"}
+
+=head2 indexable_text
+
+  data_type: 'tsvector'
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -185,6 +196,14 @@ __PACKAGE__->add_columns(
   },
   "text_content",
   { data_type => "json", is_nullable => 1 },
+  "tags",
+  {
+    data_type   => "text",
+    is_nullable => 1,
+    original    => { data_type => "varchar" },
+  },
+  "indexable_text",
+  { data_type => "tsvector", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -325,8 +344,8 @@ Composing rels: L</network_users> -> user
 __PACKAGE__->many_to_many("users", "network_users", "user");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07043 @ 2016-05-27 18:34:24
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:H3rc3d+TtjKfWuntGxAE6A
+# Created by DBIx::Class::Schema::Loader v0.07043 @ 2016-06-01 15:01:00
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:vIlCrOsP7rMZsIFi2yX/iA
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;

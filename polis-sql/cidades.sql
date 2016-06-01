@@ -40,3 +40,5 @@ values
 (207, 'Cubatão', 'cubatao',1,3,'1800-01-01', 200,1),
 (208, 'Guarujá', 'guaruja',1,3,'1800-01-01', 200,1),
 (209, 'Bertioga', 'bertioga',1,3,'1800-01-01', 200,1);
+
+update "user" set city_id = 1, institute_id = 1 where id=1;
