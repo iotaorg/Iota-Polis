@@ -9,6 +9,13 @@ delete from city where id !=1;
 
 update city set name = 'sistema polis' where id=1;
 
+update axis set name = 'Editar valores por indicador' where id=1;
+
+delete from network_user where user_id !=1 ;
+delete from user_role where user_id !=1 ;
+delete from "user" where id !=1 ;
+
+
 insert into region (id, name, name_url, city_id, depth_level, subregions_valid_after ,created_by)
 values (1, 'São Paulo', 'sao-paulo', 1, 1, '1800-01-01',1);
 

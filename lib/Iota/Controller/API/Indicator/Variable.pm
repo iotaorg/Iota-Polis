@@ -682,8 +682,7 @@ sub values_GET {
                                 next unless defined $r->{value};
                                 $vals->{ $r->{indicator_variation_id} }{ $r->{indicator_variables_variation_id} } =
                                   $r->{value};
-                                $ids->{ $r->{indicator_variation_id} }{ $r->{indicator_variables_variation_id} } =
-                                  $r;
+                                $ids->{ $r->{indicator_variation_id} }{ $r->{indicator_variables_variation_id} } = $r;
                             }
 
                             my $qtde_dados = keys %{ $vals->{ $faixa->id } };
@@ -775,7 +774,8 @@ sub period : Chained('base') : PathPart('period') : CaptureArgs( 1 ) {
     $c->stash->{valid_from} = $date;
 }
 
-sub by_period : Chained('period') : PathPart('') : Args( 0 ) : ActionClass('REST') { }
+sub by_period : Chained('period') : PathPart('') : Args( 0 ) : ActionClass('REST') {
+}
 
 =pod
 
@@ -873,10 +873,10 @@ sub by_period_GET {
                         'me.region_id'    => $region_id,
                         'me.active_value' => $active_value,
 
-                        (!$active_value ? ( generated_by_compute => undef ) : ())
+                        ( !$active_value ? ( generated_by_compute => undef ) : () )
                     ) x !!$region_id
                 },
-                { order_by => {-desc => 'end_ts'}, rows => 1 }
+                { ( $region_id ? ( order_by => { -desc => 'end_ts' } ) : () ), rows => 1 }
             );
             my $value = $rsx->next;
             if ($value) {
