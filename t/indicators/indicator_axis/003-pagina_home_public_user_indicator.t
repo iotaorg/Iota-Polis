@@ -240,7 +240,7 @@ eval {
                 $obj->{resumos}{grupo2},
                 'grupo 1 e 2 sao o mesmo indicador em grupos diferentes'
             );
-            use DDP; p $obj;
+
             is( join( ',', @{ $obj->{resumos}{grupo1}{yearly}{indicadores}[0]{valores} } ),
                 '26.8,28.6,25.8,23.5', 'valores ok' );
 

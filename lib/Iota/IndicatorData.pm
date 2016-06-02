@@ -309,7 +309,7 @@ sub upsert {
                                     region_id => $region_id,
 
                                 };
-                                use DDP; p $ins;
+
                                 $indval_rs->create($ins);
 
                             }
