@@ -15,13 +15,7 @@ __PACKAGE__->config( default => 'application/json' );
 sub base : Chained('/api/userpublic/object') : PathPart('indicator') : CaptureArgs(0) {
     my ( $self, $c ) = @_;
 
-    my @users_ids = @{ $c->stash->{network_data}{users_ids} };
-    $c->stash->{collection} = $c->model('DB::Indicator')->filter_visibilities(
-        user_id      => $c->stash->{current_city_user_id},
-        networks_ids => $c->stash->{network_data}{network_ids},
-        users_ids    => \@users_ids,
-        is_fake      => 0
-    );
+    $c->stash->{collection} = $c->model('DB::Indicator')->search( { is_fake => 0 } );
 }
 
 sub object : Chained('base') : PathPart('') : CaptureArgs(1) {
@@ -29,8 +23,7 @@ sub object : Chained('base') : PathPart('') : CaptureArgs(1) {
     $self->status_bad_request( $c, message => 'invalid.argument' ), $c->detach
       unless $id =~ /^[0-9]+$/;
 
-    $c->stash->{indicator} =
-      $c->stash->{collection}->search_rs( { 'me.id' => $id } );
+    $c->stash->{indicator} = $c->stash->{collection}->search_rs( { 'me.id' => $id } );
     $c->stash->{indicator_obj} = $c->stash->{indicator}->next;
     $c->detach('/error_404') unless $c->stash->{indicator_obj};
 
@@ -70,7 +63,8 @@ sub indicator_GET {
     }
 }
 
-sub resumo : Chained('base') : PathPart('') : Args( 0 ) : ActionClass('REST') { }
+sub resumo : Chained('base') : PathPart('') : Args( 0 ) : ActionClass('REST') {
+}
 
 =pod
 
@@ -213,11 +207,8 @@ sub resumo_GET {
         my $rs_confs = $c->model('DB::IndicatorNetworkConfig')->search(
             {
                 'me.indicator_id' => { '-not_in' => \@hide_indicator },
-                'me.network_id'   => $c->stash->{network}->id
             },
-            {
-                result_class => 'DBIx::Class::ResultClass::HashRefInflator'
-            }
+            { result_class => 'DBIx::Class::ResultClass::HashRefInflator' }
         );
         my $indicator_conf = {};
         while ( my $r = $rs_confs->next ) {
@@ -266,9 +257,7 @@ sub resumo_GET {
                         ( $from_date && $from_date eq $from_this_date )
                         ?
 
-                          (
-                            '=' => $from_date,
-                          )
+                          ( '=' => $from_date, )
                         : (
                             '>=' => $from_this_date,
 
@@ -305,8 +294,7 @@ sub resumo_GET {
                         foreach my $variation ( keys %$variations ) {
                             $sum ||= 0;
 
-                            $item->{$from}{variations}{$variation} =
-                              { value => $variations->{$variation}[0] };
+                            $item->{$from}{variations}{$variation} = { value => $variations->{$variation}[0] };
                             $sum += $variations->{$variation}[0];
                         }
                         $item->{$from}{valor} = $sum;
@@ -385,8 +373,7 @@ sub resumo_GET {
 
                 # tira data dos valores vazios
                 # inseridos no primeiro loop do indicador (caso ele apareca em dois grupos)
-                my ( $year, $month, $day ) =
-                  ( split q/-/, $periods_begin->{yearly} );
+                my ( $year, $month, $day ) = ( split q/-/, $periods_begin->{yearly} );
 
                 my @date;
                 push @date, ( join q/-/, Add_Delta_YM( $year, $month, $day, $_, 0 ) ) for ( 0 .. 3 );
@@ -470,8 +457,7 @@ sub resumo_GET {
 
             while ( my ( $eixo, $periodos ) = each %{ $ret->{resumos} } ) {
 
-                $new_ret->{resumos}{ $c->loc($eixo) } =
-                  $ret->{resumos}{$eixo};
+                $new_ret->{resumos}{ $c->loc($eixo) } = $ret->{resumos}{$eixo};
 
                 while ( my ( $periodo, $indicadores_gp ) = each %{$periodos} ) {
 
@@ -492,7 +478,8 @@ sub resumo_GET {
     }
 }
 
-sub indicator_status : Chained('base') : PathPart('status') : Args( 0 ) : ActionClass('REST') { }
+sub indicator_status : Chained('base') : PathPart('status') : Args( 0 ) : ActionClass('REST') {
+}
 
 =pod
 
@@ -523,11 +510,7 @@ sub indicator_status_GET {
         my @hide_indicator =
           map { $_->indicator_id }
           $c->stash->{user_obj}->user_indicator_configs->search( { hide_indicator => 1 } )->all;
-        my $rs = $c->stash->{collection}->search(
-            {
-                'me.id' => { '-not_in' => \@hide_indicator }
-            }
-        );
+        my $rs = $c->stash->{collection}->search( { 'me.id' => { '-not_in' => \@hide_indicator } } );
 
         my @indicator_ids = map { $_->{id} } $rs->as_hashref->all;
         my $user_id = $c->stash->{user_obj}->id;
@@ -572,17 +555,11 @@ sub indicator_status_GET {
         my $indicators_rs = $c->model('DB::Indicator')->filter_visibilities(
             networks_ids => [ map { $_->id } @networks ],
             users_ids    => \@user_ids,
-          )->search(
-            {
-                is_fake => 0
-            }
-          )->get_column('id')->as_query;
+        )->search( { is_fake => 0 } )->get_column('id')->as_query;
 
         # status
         $rs = $c->model('DB')->resultset( 'ViewIndicatorStatus' . $region_tb )->search_rs(
-            {
-                id => { 'in' => $indicators_rs }
-            },
+            { id => { 'in' => $indicators_rs } },
             {
                 bind =>
 

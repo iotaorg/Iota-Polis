@@ -278,7 +278,6 @@ sub upsert {
 
             #   use DDP; p $where;
             $indval_rs->search($where)->delete;
-            use DDP; p $results;
 
             while ( my ( $region_id, $region_data ) = each %$results ) {
                 undef $region_id if $region_id eq 'null';
@@ -479,7 +478,7 @@ sub _get_values_periods_region {
         $out->{ $row->{active_value} }{ $row->{region_id} }{ $row->{user_id} }{ $row->{valid_from} }
           { $row->{variable_id} } = [ $row->{value}, $row->{source}, $row->{observations} ];
     }
-use DDP; p $out;
+
     return $out;
 }
 

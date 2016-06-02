@@ -37,20 +37,13 @@ sub index : Path : Args(0) {
 sub root : Chained('/') PathPart('') CaptureArgs(0) {
     my ( $self, $c ) = @_;
 
-    #$c->languages( ['pt'] );
 }
 
 sub default : Path {
     my ( $self, $c ) = @_;
 
-    eval { $c->forward('/institute_load') };
-
-    $c->stash(
-        custom_wrapper => 'site/iota_wrapper',
-        v2             => 1,
-    );
-    $c->stash->{template} = 'not_found.tt';
-    $c->response->status(404);
+    $c->res->status(404);
+    $c->res->body('resource not found');
 }
 
 sub error_404_rdf : Private {
@@ -61,32 +54,9 @@ sub error_404_rdf : Private {
 
 sub error_404 : Private {
     my ( $self, $c, $foo ) = @_;
-    my $x = $c->req->uri;
 
-
-    $c->stash(
-        custom_wrapper => 'site/iota_wrapper',
-        v2             => 1,
-    );
-    $c->stash->{template} = 'not_found.tt';
-    $c->response->status(404);
-
-    $c->stash->{message} = ( $foo ? $foo : $x->path );
-
-    if ( $foo && $foo =~ /Nenhuma rede/ ) {
-        $c->stash->{networks} = [
-            $c->model('DB::Network')->search(
-                {
-                    is_virtual => 0
-                },
-                {
-                    columns      => ['domain_name'],
-                    result_class => 'DBIx::Class::ResultClass::HashRefInflator'
-                }
-            )->all
-        ];
-    }
-
+    $c->res->status(404);
+    $c->res->body('resource not found');
 }
 
 sub error_500 : Private {

@@ -12,7 +12,6 @@ sub base : Chained('/api/root') : PathPart('regions') : CaptureArgs(0) {
     my ( $self, $c ) = @_;
     $c->stash->{collection} = $c->model('DB::City');
 
-    $c->forward('/light_institute_load');
 }
 
 sub object : Chained('base') : PathPart('') : CaptureArgs(3) {
@@ -32,9 +31,7 @@ sub object : Chained('base') : PathPart('') : CaptureArgs(3) {
         {
             city_id                    => $city->id,
             'me.active'                => 1,
-            'network_users.network_id' => $c->stash->{network}->id
-        },
-        { join => 'network_users' }
+        }
     )->next;
     if ( $user && !$user->regions_enabled ) {
         $c->stash->{collection} = $c->model('DB::Region')->search(
