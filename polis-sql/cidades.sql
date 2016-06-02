@@ -30,7 +30,7 @@ values (100, 'Litoral Norte', 'LN', 1, 2, '1800-01-01', 1,1),
 
 insert into region (id, name, name_url, city_id, depth_level, subregions_valid_after, upper_region,created_by )
 values
- (200, 'Litoral Sul', 'LS', 1, 2, '1800-01-01', 1,1),
+ (200, 'Baixada Santista', 'BS', 1, 2, '1800-01-01', 1,1),
 (201, 'Peruíbe', 'peruibe',1,3,'1800-01-01', 200,1),
 (202, 'Itanhaém', 'itanhaem',1,3,'1800-01-01', 200,1),
 (203, 'Mongaguá', 'mongagua',1,3,'1800-01-01', 200,1),
