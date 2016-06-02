@@ -98,38 +98,6 @@ sub root : Chained('/') : PathPart('api') : CaptureArgs(0) {
 
 }
 
-sub public_lexicons : Chained('root') PathPart('public/lexicons') Args(0) {
-    my ( $self, $c ) = @_;
-
-    my $rs = $c->model('DB::Lexicon')->search(
-        undef,
-        {
-            result_class => 'DBIx::Class::ResultClass::HashRefInflator'
-        }
-    );
-
-    my $out = {};
-    while ( my $r = $rs->next ) {
-        $out->{ $r->{lang} }{ $r->{lex_key} } = $r->{lex_value};
-    }
-
-    $self->status_ok(
-        $c,
-        entity => {
-            lex     => $out,
-            langs   => [ split /,/, $c->config->{forced_langs} ],
-            default => $c->config->{default_lang}
-        }
-    );
-
-}
-
-sub lexicons : Chained('base') PathPart('lexicons') Args(0) {
-    my ( $self, $c ) = @_;
-
-
-    $self->status_ok( $c, entity => { saved => 1 } );
-}
 
 sub login : Chained('root') : PathPart('login') : Args(0) : ActionClass('REST') {
 }

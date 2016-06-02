@@ -35,38 +35,7 @@ sub _download {
 
     my $ignore_cache = 0;
 
-    if ( $c->req->params->{from_indicators} ) {
-
-        # da muito trabalho cachear essas informações "per user"
-        # e nao compensa muito fazer isso agora.
-        $ignore_cache = 1;
-
-        my @users_ids =
-          $c->req->params->{user_id} && $c->req->params->{user_id} =~ /^\d+$/
-          ? ( $c->req->params->{user_id} )
-          : @{ $c->stash->{network_data}{users_ids} };
-
-        my $indicators_rs = $c->model('DB::Indicator')->filter_visibilities(
-            user_id      => $c->stash->{current_city_user_id},
-            networks_ids => $c->stash->{network_data}{network_id},
-            users_ids    => \@users_ids,
-        )->get_column('id')->as_query;
-
-        my $variables_id_rs = $c->model('DB::IndicatorVariable')->search(
-            {
-                indicator_id => { 'in' => $indicators_rs }
-            }
-        )->get_column('variable_id')->as_query;
-
-        $rs = $rs->search(
-            {
-                'me.id' => { 'in' => $variables_id_rs }
-            }
-        );
-
-    }
-
-    my $file = $c->get_lang() . '_variaveis_exemplo.';
+    my $file = 'variaveis_exemplo.';
 
     # evita conflito com outros usuarios
     $file .= join '-', rand, rand, rand, rand, '.' if $ignore_cache;
@@ -84,12 +53,12 @@ sub _download {
     $rs = $rs->as_hashref;
 
     my @lines =
-      ( [ 'ID da variável', 'Nome', 'Data', 'Valor', 'fonte', 'observacao' ] );
+      ( [ 'ID da regiao', 'ID da variável', 'Nome', 'Data', 'Valor', 'Fonte', 'Observacao' ] );
 
     while ( my $var = $rs->next ) {
         push @lines,
           [
-            $var->{id}, $self->_loc_str( $c, $var->{name} ),
+            $var->{id}, undef, $self->_loc_str( $c, $var->{name} ),
             undef, undef, undef, undef
           ];
     }
@@ -175,8 +144,7 @@ sub _download_and_detach {
     $c->response->headers->header(
             'content-disposition' => "attachment;filename="
           . "variaveis-exemplo-"
-          . ( $custom ? 'dos-indicadores-' : 'completa-' )
-          . $c->get_lang()
+          . ( $custom ? 'dos-indicadores' : 'completa' )
           . ".$1" );
 
     open( my $fh, '<:raw', $path );
@@ -185,14 +153,14 @@ sub _download_and_detach {
     $c->detach;
 }
 
-sub doido_download_csv : Chained('/institute_load') :
+sub doido_download_csv : Chained('/') :
   PathPart('variaveis_exemplo.csv') : Args(0) {
     my ( $self, $c ) = @_;
     $c->stash->{type} = 'csv';
     $self->_download($c);
 }
 
-sub download_xls : Chained('/institute_load') :
+sub download_xls : Chained('/') :
   PathPart('variaveis_exemplo.xls') : Args(0) {
     my ( $self, $c ) = @_;
     $c->stash->{type} = 'xls';

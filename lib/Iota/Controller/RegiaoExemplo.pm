@@ -25,7 +25,7 @@ sub _download {
 
     if ( -e $path ) {
         my $epoch_timestamp = ( stat($path) )[9];
-        unlink($path) if time() - $epoch_timestamp > 60;
+        unlink($path) if time() - $epoch_timestamp > 10;
     }
     $self->_download_and_detach( $c, $path ) if -e $path;
 
@@ -33,10 +33,10 @@ sub _download {
     my $rs = $c->stash->{collation};
 
     my @lines =
-      ( [ 'ID da regiao', 'Região', 'Subregião', 'ID da variável', 'Data', 'Valor', 'fonte', 'observação' ] );
+      ( [ 'ID da regiao', 'ID da variável', 'Região', 'Subregião', 'Data', 'Valor', 'Fonte', 'Observação' ] );
 
     while ( my $var = $rs->next ) {
-        if ( $var->{depth_level} == 2 ) {
+        if ( $var->{depth_level} <= 2 ) {
             push @lines, [ $var->{id}, $var->{name}, '-', undef, undef, undef, undef, undef ];
         }
         else {
@@ -129,7 +129,7 @@ sub _download_and_detach {
     $c->detach;
 }
 
-sub load_user : Chained('/institute_load') : PathPart('dados/usuario') : CaptureArgs(1) {
+sub load_user : Chained('/') : PathPart('dados/usuario') : CaptureArgs(1) {
     my ( $self, $c, $user_id ) = @_;
 
     my $user = $c->model('DB')->resultset('User')->find($user_id);

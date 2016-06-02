@@ -31,21 +31,7 @@ The root page (/)
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
 
-    $c->forward('root');
-    $c->forward('institute_load');
-
-    $c->forward('web_load_country');
-
-    $c->stash(
-        template       => 'home_comparacao.tt',
-        custom_wrapper => 'site/iota_wrapper',
-        v2             => 1,
-        web_open_axis  => 1
-    );
-    $c->forward( 'build_indicators_menu', [1] );
-    $c->forward('/load_status_msgs');
-
-    $c->forward('/topic_network') if $c->stash->{network}->topic;
+    $c->res->body('{"perl":"awesome!"}');
 }
 
 sub root : Chained('/') PathPart('') CaptureArgs(0) {
@@ -77,8 +63,6 @@ sub error_404 : Private {
     my ( $self, $c, $foo ) = @_;
     my $x = $c->req->uri;
 
-    #eval { $c->forward('/institute_load') }
-    #  if !exists $c->stash->{institute_loaded};
 
     $c->stash(
         custom_wrapper => 'site/iota_wrapper',
