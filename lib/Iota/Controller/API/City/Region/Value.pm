@@ -98,6 +98,8 @@ sub variable_DELETE {
     my $object = $c->stash->{object}->next;
     $self->status_gone( $c, message => 'deleted' ), $c->detach unless $object;
 
+    $self->status_bad_request( $c, message => 'generated_by_compute' ), $c->detach if $object->generated_by_compute;
+
     if ( $c->user->id == $object->owner->id || $c->check_any_user_role(qw(admin superadmin)) ) {
 
         my $data = Iota::IndicatorData->new( schema => $c->model('DB')->schema );
