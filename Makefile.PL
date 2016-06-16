@@ -59,6 +59,7 @@ requires 'DateTimeX::Easy';
 requires 'DateTime::Format::Pg';
 requires 'Catalyst::View::TT';
 requires 'Date::Calc';
+requires 'Text::Unaccent::PurePerl';
 
 requires 'Geo::Coder::Google';
 requires 'Text::Iconv';
