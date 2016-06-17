@@ -50,7 +50,7 @@ sub process {
 
     my $file_id;
 
-    my $status  = 'Procssando ' . @{ $parse->{rows} }  . ' linhas, ';
+    my $status  = @{ $parse->{rows} }  . ' linhas, ';
     my $user_id = $param{user_id};
     my $file    = $schema->resultset('File')->create(
         {
@@ -78,18 +78,19 @@ sub process {
 
                     # $r->{value} = $self->_verify_variable_type( $r->{value}, $type );
 
+                    next if $value eq '';
                     if ( $value eq '-' ) {
 
                         # TODO: procurar pela data certa.
-                        $rvv_rs->search(
+                        $removed++ if $rvv_rs->search(
                             {
                                 region_id     => $r->{region_id},
                                 user_id       => $user_id,
                                 value_of_date => $r->{date},
                                 variable_id   => $variables{$varname},
                             }
-                        )->delete;
-                        $removed++;
+                        )->delete > 0;
+
                         next;
                     }
                     $inserted++;
