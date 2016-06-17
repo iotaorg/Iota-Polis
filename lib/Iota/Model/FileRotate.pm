@@ -25,8 +25,7 @@ sub process {
       map { $_->{region_id} => 1 } grep { $_->{region_id} } @{ $parse->{rows} };
     my @regs_db =
       $schema->resultset('Region')
-      ->search( { id => { in => [ keys %regsids ] } },
-        { select => [qw/id depth_level/], as => [qw/id depth_level/] } )
+      ->search( { id => { in => [ keys %regsids ] } }, { select => [qw/id depth_level/], as => [qw/id depth_level/] } )
       ->as_hashref->all;
     my %reg_vs_id = map { $_->{id} => $_ } @regs_db;
 
@@ -51,103 +50,96 @@ sub process {
 
     my $file_id;
 
+    my $status  = 'Procssando ' . @{ $parse->{rows} }  . ' linhas, ';
+    my $user_id = $param{user_id};
+    my $file    = $schema->resultset('File')->create(
+        {
+            name        => $upload->filename,
+            status_text => $status,
+            created_by  => $user_id
+        }
+    );
+    $file_id = $file->id;
 
-        my %periods = map { $_->{id} => $_->{period} } @vars_db;
+    my $rvv_rs = $schema->resultset('RegionVariableValue');
 
-        my $status= 'Procssando...';
-        my $user_id = $param{user_id};
-        my $file    = $schema->resultset('File')->create(
-            {
-                name        => $upload->filename,
-                status_text => $status,
-                created_by  => $user_id
-            }
-        );
-        $file_id = $file->id;
+    $schema->txn_do(
+        sub {
+            my $with_region    = {};
+            my $without_region = {};
+            my $cache_ref      = {};
 
-        my $rvv_rs = $schema->resultset('RegionVariableValue');
+            # percorre as linhas e insere no banco
+            # usando o modelo certo.
+            my ($inserted, $removed) = (0,0);
 
-        $schema->txn_do(
-            sub {
-                my $with_region    = {};
-                my $without_region = {};
-                my $cache_ref      = {};
+            foreach my $r ( @{ $parse->{rows} } ) {
+                while ( my ( $varname, $value ) = each %{ $r->{vars} } ) {
 
-                # percorre as linhas e insere no banco
-                # usando o modelo certo.
-                my $c = 0;
+                    # $r->{value} = $self->_verify_variable_type( $r->{value}, $type );
 
-                foreach my $r ( @{ $parse->{rows} } ) {
-                    $c++;
+                    if ( $value eq '-' ) {
 
-                    my $variable = $var_vs_id{ $r->{id} };
-
-                    my $type = $variable->{type};
-
-                    my $old_value = $r->{value};
-
-                    $r->{value} =
-                      $self->_verify_variable_type( $r->{value}, $type );
-
-                    if ( !defined $r->{value} ) {
-                        $status =
-"Valor '$old_value' não é um número válido [registro número $c]. Por favor, envie formatado corretamente.";
-
-                        #  die "invalid number";
+                        # TODO: procurar pela data certa.
+                        $rvv_rs->search(
+                            {
+                                region_id     => $r->{region_id},
+                                user_id       => $user_id,
+                                value_of_date => $r->{date},
+                                variable_id   => $variables{$varname},
+                            }
+                        )->delete;
+                        $removed++;
+                        next;
                     }
+                    $inserted++;
 
                     my $ref = {
                         do_not_calc => 1,
                         cache_ref   => $cache_ref
                     };
-                    $ref->{variable_id}   = $r->{id};
+                    $ref->{variable_id}   = $variables{$varname};
                     $ref->{user_id}       = $user_id;
-                    $ref->{value}         = $r->{value};
+                    $ref->{value}         = $value;
                     $ref->{value_of_date} = $r->{date};
                     $ref->{file_id}       = $file_id;
 
-                    $ref->{observations} = $r->{obs};
-                    $ref->{source}       = $r->{source};
+                    $ref->{source} = $r->{source};
 
+                    $ref->{region_id} = $r->{region_id};
 
-                        $ref->{region_id} = $r->{region_id};
+                    $with_region->{variables}{ $ref->{variable_id} } = 1;
+                    $with_region->{dates}{ $r->{date} }              = 1;
+                    $with_region->{regions}{ $r->{region_id} }       = 1;
 
-                        $with_region->{variables}{ $r->{id} }      = 1;
-                        $with_region->{dates}{ $r->{date} }        = 1;
-                        $with_region->{regions}{ $r->{region_id} } = 1;
+                    # TODO fix this decade...
+                    eval { $rvv_rs->_put( 'decade', %$ref ); };
 
-                        eval { $rvv_rs->_put( $periods{ $r->{id} }, %$ref ); };
-
-                    $status .= "$@" if $@;
                     die $@ if $@;
                 }
-                my $data =
-                  Iota::IndicatorData->new( schema => $schema->schema );
-                if ( exists $with_region->{dates} ) {
-                    $data->upsert(
-                        indicators => [
-                            $data->indicators_from_variables(
-                                variables =>
-                                  [ keys %{ $with_region->{variables} } ]
-                            )
-                        ],
-                        dates      => [ keys %{ $with_region->{dates} } ],
-                        regions_id => [ keys %{ $with_region->{regions} } ],
-                        user_id    => $user_id
-                    );
-                }
-
             }
-        );
-        $file->update( { status_text => $status } );
 
-    }
+            my $data = Iota::IndicatorData->new( schema => $schema->schema );
+            if ( exists $with_region->{dates} ) {
+                $data->upsert(
+                    indicators =>
+                      [ $data->indicators_from_variables( variables => [ keys %{ $with_region->{variables} } ] ) ],
+                    dates      => [ keys %{ $with_region->{dates} } ],
+                    regions_id => [ keys %{ $with_region->{regions} } ],
+                    user_id    => $user_id
+                );
+            }
+
+            $status .= "valores atualizados: $inserted, valores removidos: $removed";
+
+        }
+    );
+    $file->update( { status_text => $status } );
 
     return {
         status  => $status,
         file_id => $file_id
     };
-
 
 }
 

@@ -98,7 +98,7 @@ eval {
             ok( $res->is_success, 'OK' );
             is( $res->code, 200, 'upload done!' );
 
-            use DDP; p $res;
+            is( $schema->resultset('RegionVariableValue')->count, 27, 'valores importados' );
 
             die 'rollback';
         }
