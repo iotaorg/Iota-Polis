@@ -97,17 +97,11 @@ sub list_GET {
                 users_ids    => \@user_ids,
             )->get_column('id')->as_query;
 
-            my $variables_id_rs = $c->model('DB::IndicatorVariable')->search(
-                {
-                    indicator_id => { 'in' => $indicators_rs }
-                }
-            )->get_column('variable_id')->as_query;
+            my $variables_id_rs =
+              $c->model('DB::IndicatorVariable')->search( { indicator_id => { 'in' => $indicators_rs } } )
+              ->get_column('variable_id')->as_query;
 
-            $rs = $rs->search(
-                {
-                    'me.id' => { 'in' => $variables_id_rs }
-                }
-            );
+            $rs = $rs->search( { 'me.id' => { 'in' => $variables_id_rs } } );
         }
     }
 
@@ -159,6 +153,7 @@ sub list_GET {
                         valid_until => $_->{valid_until},
                         id          => $_->{id},
 
+                        ( $region_id ? ( region_id => $region_id ) : () ),
                         url => $region_id
                         ? $c->uri_for_action( $c->controller('API::City::Region::Value')->action_for('variable'),
                             [ $city_id, $region_id, $_->{id} ] )->as_string
