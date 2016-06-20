@@ -51,12 +51,15 @@ sub process {
     my $file_id;
 
     my $status  = @{ $parse->{rows} }  . ' linhas, ';
+
     my $user_id = $param{user_id};
     my $file    = $schema->resultset('File')->create(
         {
             name        => $upload->filename,
             status_text => $status,
-            created_by  => $user_id
+            created_by  => $user_id,
+            private_path => $param{private_path},
+            public_path => $param{public_path},
         }
     );
     $file_id = $file->id;

@@ -89,6 +89,8 @@ Autores
 - Renato Santos <renato@aware.com.br>
 - Henry Shinohara <shin@aware.com.br>
 
+---
 
+apt-get install exiv2
 
 

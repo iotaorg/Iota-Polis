@@ -68,6 +68,18 @@ __PACKAGE__->table("file");
   data_type: 'integer'
   is_nullable: 0
 
+=head2 private_path
+
+  data_type: 'text'
+  is_nullable: 1
+  original: {data_type => "varchar"}
+
+=head2 public_path
+
+  data_type: 'text'
+  is_nullable: 1
+  original: {data_type => "varchar"}
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -91,6 +103,18 @@ __PACKAGE__->add_columns(
   },
   "created_by",
   { data_type => "integer", is_nullable => 0 },
+  "private_path",
+  {
+    data_type   => "text",
+    is_nullable => 1,
+    original    => { data_type => "varchar" },
+  },
+  "public_path",
+  {
+    data_type   => "text",
+    is_nullable => 1,
+    original    => { data_type => "varchar" },
+  },
 );
 
 =head1 PRIMARY KEY
@@ -123,8 +147,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-12-15 14:24:21
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:+EGaRRty9XL4BG2oVLQQAg
+# Created by DBIx::Class::Schema::Loader v0.07043 @ 2016-06-20 13:29:49
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:yZ3Y6lDRGxe8P9Tez3z1Eg
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;

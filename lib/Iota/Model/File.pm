@@ -30,6 +30,7 @@ sub process {
 
     my $status = $@ ? $@ : '';
 
+
     $status .= 'Linhas aceitas: ' . $parse->{ok} . "\n";
     $status .= 'Linhas ignoradas: ' . $parse->{ignored} . "\n"
       if $parse->{ignored};
@@ -84,7 +85,9 @@ sub process {
             {
                 name        => $upload->filename,
                 status_text => $status,
-                created_by  => $user_id
+                created_by  => $user_id,
+                private_path => $param{private_path},
+                public_path => $param{public_path},
             }
         );
         $file_id = $file->id;

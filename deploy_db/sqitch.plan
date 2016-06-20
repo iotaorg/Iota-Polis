@@ -34,3 +34,4 @@ end-users-mail-queue [end-users-by-network] 2014-07-08T14:02:35Z cron <renato.cr
 0067-polis-init-schema [0066-fix-download-view] 2016-05-27T19:46:02Z renatopc,,, <renato@oodcronpc> # init schema polis
 0068-tags [0067-polis-init-schema] 2016-06-01T17:59:13Z renatopc,,, <renato@oodcronpc> # tags
 0069-ts-vecotr [0068-tags] 2016-06-02T12:47:08Z renatopc,,, <renato@oodcronpc> # network
+0070-private_path [0069-ts-vecotr] 2016-06-20T16:29:00Z renatopc,,, <renato@oodcronpc> # private_path
