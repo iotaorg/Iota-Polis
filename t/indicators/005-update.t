@@ -28,6 +28,16 @@ use JSON qw(from_json);
 eval {
     $schema->txn_do(
         sub {
+            $schema->resultset('Network')->create(
+                {
+                    id           => 2,
+                    name         => 'Foo',
+                    name_url     => 'lala',
+                    created_by   => 1,
+                    institute_id => 1,
+                    domain_name  => ( rand() ),
+                }
+            );
 
             my ( $res, $c );
             ( $res, $c ) = ctx_request(
@@ -127,7 +137,7 @@ eval {
                 [
                     'indicator.update.goal'                => '26',
                     'indicator.update.visibility_level'    => 'restrict',
-                    'indicator.update.visibility_users_id' => '4,7',
+                    'indicator.update.visibility_users_id' => '4',
                 ]
             );
 
@@ -140,7 +150,7 @@ eval {
             is( $updated_indicator->goal, '26', 'goal updated ok' );
             is_deeply(
                 [ sort map { $_->user_id } $updated_indicator->indicator_user_visibilities ],
-                [ 4, 7 ],
+                [ 4 ],
                 'indicator_user_visibilities ok'
             );
 
