@@ -128,7 +128,7 @@ sub list_POST {
         my $filename = sprintf(
             'user_%i_%s_%s_%s',
             $user_id, $classe,
-            $foo->randpattern('sssss'),
+            $foo->randpattern('ccccccc'),
             substr( $t->translate( $upload->basename ), 0, 200 ),
         );
 

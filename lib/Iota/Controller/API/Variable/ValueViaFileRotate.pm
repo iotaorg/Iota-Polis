@@ -38,7 +38,7 @@ sub file_POST {
             my $filename = sprintf(
                 'user_%i_%s_%s_%s',
                 $user_id, 'upload-file',
-                $foo->randpattern('sssss'),
+                $foo->randpattern('cccccccc'),
                 substr( $t->translate( $upload->basename ), 0, 200 ),
             );
             my $private_path =
@@ -53,13 +53,13 @@ sub file_POST {
             chmod 0644, $private_path;
 
             my $public_path = $c->uri_for( $c->config->{public_url} . '/' . $filename )->as_string;
-            my $file = $c->model('FileRotate')->process(
+            my $file        = $c->model('FileRotate')->process(
                 user_id      => $user_id,
                 upload       => $upload,
                 schema       => $c->model('DB'),
                 app          => $c,
                 private_path => $private_path,
-                public_path => $public_path,
+                public_path  => $public_path,
             );
 
             $c->res->body( to_json($file) );
@@ -69,6 +69,7 @@ sub file_POST {
             die "no upload found\n";
         }
     };
+    die $@ if $@ && ref $@;
     print STDERR " >>>>> $@" if $@;
     $c->res->body( to_json( { error => "$@" } ) ) if $@;
 
