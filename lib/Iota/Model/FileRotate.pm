@@ -50,16 +50,16 @@ sub process {
 
     my $file_id;
 
-    my $status  = @{ $parse->{rows} }  . ' linhas, ';
+    my $status = @{ $parse->{rows} } . ' linhas, ';
 
     my $user_id = $param{user_id};
     my $file    = $schema->resultset('File')->create(
         {
-            name        => $upload->filename,
-            status_text => $status,
-            created_by  => $user_id,
+            name         => $upload->filename,
+            status_text  => $status,
+            created_by   => $user_id,
             private_path => $param{private_path},
-            public_path => $param{public_path},
+            public_path  => $param{public_path},
         }
     );
     $file_id = $file->id;
@@ -74,7 +74,7 @@ sub process {
 
             # percorre as linhas e insere no banco
             # usando o modelo certo.
-            my ($inserted, $removed) = (0,0);
+            my ( $inserted, $removed ) = ( 0, 0 );
 
             foreach my $r ( @{ $parse->{rows} } ) {
                 while ( my ( $varname, $value ) = each %{ $r->{vars} } ) {
@@ -85,14 +85,15 @@ sub process {
                     if ( $value eq '-' ) {
 
                         # TODO: procurar pela data certa.
-                        $removed++ if $rvv_rs->search(
+                        $removed++
+                          if $rvv_rs->search(
                             {
                                 region_id     => $r->{region_id},
                                 user_id       => $user_id,
                                 value_of_date => $r->{date},
                                 variable_id   => $variables{$varname},
                             }
-                        )->delete > 0;
+                          )->delete > 0;
 
                         next;
                     }
@@ -190,19 +191,25 @@ sub generate_variables {
     my $var_vs_id;
     foreach my $var ( @{ $opt{variables} } ) {
 
-        my $var2 = lc unac_string $var;
+        my ( $line1, $line2 ) = split /\n/, $var;
+        die 'Faltando segunda linha em "' . $var . '"' unless $line2;
+        my $cognomen = lc unac_string $line1;
+        $line2 = lc unac_string $line2;
 
-        $var2 =~ s/[^a-z0-9 ]//g;
-        $var2 =~ s/\s\s*/_/g;
-        $var2 =~ s/ /_/g;
+        $cognomen =~ s/[^a-z0-9 ]//g;
+        $cognomen =~ s/\s\s*/_/g;
+        $cognomen =~ s/ /_/g;
 
-        my $vardef = $opt{rs}->search( { cognomen => $var2 } )->next;
+        $line2 =~ s/[^a-z0-9 ]//g;
+        $line2 =~ s/\s\s*/_/g;
+
+        my $vardef = $opt{rs}->search( { cognomen => $cognomen } )->next;
 
         $var_vs_id->{$var} = $vardef ? $vardef->id : $opt{rs}->create(
             {
-                name        => $var,
-                explanation => $var,
-                cognomen    => $var2,
+                name        => $line1,
+                explanation => $line2,
+                cognomen    => $cognomen,
                 user_id     => $opt{user_id},
                 type        => 'str',
                 period      => 'decade',

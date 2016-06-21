@@ -7,7 +7,6 @@ use DateTime::Format::Pg;
 
 use Spreadsheet::ParseExcel::Stream;
 use DateTime::Format::Excel;
-
 use Encode;
 
 sub parse {
@@ -55,10 +54,10 @@ sub parse {
                 }
 
                 if ($header_found) {
-                    die "missing source\n"    unless exists $header_map->{source};
-                    die "missing date\n"      unless exists $header_map->{date};
-                    die "missing region_id\n" unless exists $header_map->{region_id};
-                    die "missing start_var\n" unless exists $header_map->{start_var};
+                    die "Faltando coluna fonte\n"    unless exists $header_map->{source};
+                    die "Faltando coluna data\n"      unless exists $header_map->{date};
+                    die "Faltando coluna Região\n" unless exists $header_map->{region_id};
+                    die "Faltando coluna start_var\n" unless exists $header_map->{start_var};
 
                     for my $col ( $header_map->{start_var} + 2 .. ( scalar @data - 1 ) ) {
 
@@ -66,10 +65,9 @@ sub parse {
                         next unless $cell;
 
                         $cell = decode( 'iso-8859-15', $cell );
-                        $cell =~ s/\n/ /o;
                         $cell =~ s/\s*$//o;
                         $cell =~ s/^\s*//o;
-                        $cell =~ s/\s\s*/ /go;
+                        $cell =~ s/  */ /go;
 
                         $variables->{$cell} = $col;
                         $total_vars->{$cell}=1;
@@ -107,8 +105,8 @@ sub parse {
                       : $registro->{date} =~ /^\d{4}\-\d{2}\-\d{2}$/ ? $registro->{date}
                       :   DateTime::Format::Excel->parse_datetime( $registro->{date} )->ymd;
 
-                    die "invalid date format: " . $registro->{date} unless $registro->{date} =~ /\d{4}-\d{2}-\d{2}/;
-                    die 'invalid region id' if $registro->{region_id} && $registro->{region_id} !~ /^\d+$/;
+                    die "Data inválida: " . $registro->{date} unless $registro->{date} =~ /\d{4}-\d{2}-\d{2}/;
+                    die 'Região Inválida' if $registro->{region_id} && $registro->{region_id} !~ /^\d+$/;
 
                     foreach my $varname ( keys %$variables ) {
                         $registro->{vars}{$varname} = $data[ $variables->{$varname} ];
