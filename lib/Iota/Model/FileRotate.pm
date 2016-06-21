@@ -194,7 +194,7 @@ sub generate_variables {
         my ( $line1, $line2 ) = split /\n/, $var;
         die 'Faltando segunda linha em "' . $var . '"' unless $line2;
         my $cognomen = lc unac_string $line1;
-        $line2 = lc unac_string $line2;
+        $line2 = unac_string $line2;
 
         $cognomen =~ s/[^a-z0-9 ]//g;
         $cognomen =~ s/\s\s*/_/g;
