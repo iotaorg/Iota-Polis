@@ -117,6 +117,11 @@ __PACKAGE__->table("variable");
   is_nullable: 0
   original: {data_type => "varchar"}
 
+=head2 colors
+
+  data_type: 'json'
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -189,6 +194,8 @@ __PACKAGE__->add_columns(
     is_nullable   => 0,
     original      => { data_type => "varchar" },
   },
+  "colors",
+  { data_type => "json", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -330,8 +337,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-12-15 14:24:21
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:h2J62hY+E808pHYaSbHdFQ
+# Created by DBIx::Class::Schema::Loader v0.07043 @ 2016-06-21 19:12:14
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:53s5o9Iu84T4oOrZdy6Urw
 
 __PACKAGE__->belongs_to(
     "owner", "Iota::Schema::Result::User",

@@ -71,7 +71,7 @@ sub variable_GET {
         $c,
         entity => {
             created_by => { map { $_ => $object_ref->{owner}{$_} } qw(name id) },
-            ( map { $_ => $object_ref->{$_} } qw(name type cognomen explanation source period is_basic created_at) ),
+            ( map { $_ => $object_ref->{$_} } qw(name type cognomen explanation source period is_basic colors created_at) ),
 
             measurement_unit => $object_ref->{measurement_unit}
             ? { ( map { $_ => $object_ref->{measurement_unit}{$_} } qw(name short_name id) ), }
@@ -258,7 +258,7 @@ sub list_GET {
 
             created_by => { map { $_ => $obj->{owner}{$_} } qw(name id) },
 
-            ( map { $_ => $obj->{$_} } qw(id name type cognomen explanation source period is_basic created_at) ),
+            ( map { $_ => $obj->{$_} } qw(id name type cognomen explanation source period colors is_basic created_at) ),
             url => $c->uri_for_action( $self->action_for('variable'), [ $obj->{id} ] )->as_string,
 
             measurement_unit => $obj->{measurement_unit}

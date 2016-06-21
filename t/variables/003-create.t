@@ -49,6 +49,7 @@ eval {
                     'variable.create.period'              => 'yearly',
                     'variable.create.source'              => 'God',
                     'variable.create.measurement_unit_id' => '1',
+                    'variable.create.colors' => '{"foo":"#FFWWDD"}',
                 ]
             );
             ok( $res->is_success, 'variable created!' );
@@ -60,11 +61,13 @@ eval {
             ( $res, $c ) = ctx_request( GET $uri->path_query );
             ok( $res->is_success, 'varible exists' );
             is( $res->code, 200, 'varible exists -- 200 Success' );
+            ok $res->content =~ /#FFWWDD/;
 
             ( $res, $c ) = ctx_request( GET '/api/variable?api_key=test' );
 
             ok( $res->is_success, 'listing ok!' );
             is( $res->code, 200, 'list 200' );
+
 
             die 'rollback';
         }

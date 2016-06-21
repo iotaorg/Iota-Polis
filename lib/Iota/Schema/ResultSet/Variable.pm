@@ -23,6 +23,7 @@ sub verifiers_specs {
         create => Data::Verifier->new(
             filters => [qw(trim)],
             profile => {
+                colors      => { required => 0, type => 'Str' },
                 name        => { required => 1, type => 'Str' },
                 explanation => { required => 1, type => 'Str' },
                 cognomen    => {
@@ -31,7 +32,7 @@ sub verifiers_specs {
                     post_check => sub {
                         my $r = shift;
                         return $r->get_value('cognomen') =~ /^[A-Z](?:[A-Z0-9_])+$/i;
-                    }
+                      }
                 },
                 type                => { required => 1, type => VariableType },
                 user_id             => { required => 1, type => 'Int' },
@@ -46,7 +47,7 @@ sub verifiers_specs {
                         return
                           defined $self->result_source->schema->resultset('MeasurementUnit')
                           ->find( { id => $r->get_value('measurement_unit_id') } );
-                    }
+                      }
                 },
                 is_basic             => { required => 0, type => 'Bool' },
                 summarization_method => { required => 0, type => 'Str' },
@@ -56,6 +57,7 @@ sub verifiers_specs {
         update => Data::Verifier->new(
             filters => [qw(trim)],
             profile => {
+                colors      => { required => 0, type => 'Str' },
                 id          => { required => 1, type => 'Int' },
                 name        => { required => 0, type => 'Str' },
                 explanation => { required => 0, type => 'Str' },
@@ -65,7 +67,7 @@ sub verifiers_specs {
                     post_check => sub {
                         my $r = shift;
                         return $r->get_value('cognomen') =~ /^[A-Z](?:[A-Z0-9_])+$/i;
-                    }
+                      }
                 },
                 type                => { required => 0, type => VariableType },
                 source              => { required => 0, type => 'Str' },
@@ -78,7 +80,7 @@ sub verifiers_specs {
                         return
                           defined $self->result_source->schema->resultset('MeasurementUnit')
                           ->find( { id => $r->get_value('measurement_unit_id') } );
-                    }
+                      }
                 },
                 is_basic             => { required => 0, type => 'Bool' },
                 summarization_method => { required => 0, type => 'Str' },
