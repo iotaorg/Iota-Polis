@@ -87,7 +87,7 @@ sub list_GET {
     foreach my $obj (@list) {
         push @objs,
           {
-            ( map { $_ => $obj->{$_} } qw(id name status_text created_at) ),
+            ( map { $_ => $obj->{$_} } qw(id name status_text private_path public_path created_at) ),
             url => $c->uri_for_action( $self->action_for('file'), [ $obj->{id} ] )->as_string,
           };
     }
