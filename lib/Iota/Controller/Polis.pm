@@ -47,6 +47,24 @@ sub acoes_item : Local : Args(1) {
     $self->status_ok( $c, entity => $item );
 }
 
+sub acoes_search_get_ids : Local : Args(0) {
+    my ( $self, $c ) = @_;
+
+    my @ids = $c->model('DB::Network')->search(
+        { indexable_text => \[ "@@ plainto_tsquery('pg_catalog.portuguese', ?)", $c->req->params->{q} ] },
+        {
+            order_by => [
+
+                \[ "TS_RANK_CD(indexable_text, plainto_tsquery('pg_catalog.portuguese', ?))", $c->req->params->{q} ]
+              ]
+            ,
+            columns => [qw/id/]
+        }
+    )->as_hashref->all;
+
+    $self->status_ok( $c, entity => { ids => \@ids } );
+}
+
 __PACKAGE__->meta->make_immutable;
 
 1;
