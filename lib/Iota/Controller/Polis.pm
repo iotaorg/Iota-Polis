@@ -50,17 +50,29 @@ sub acoes_item : Local : Args(1) {
 sub acoes_search_get_ids : Local : Args(0) {
     my ( $self, $c ) = @_;
 
-    my @ids = $c->model('DB::Network')->search(
-        { indexable_text => \[ "@@ plainto_tsquery('pg_catalog.portuguese', ?)", $c->req->params->{q} ] },
-        {
+    my $q = lc $c->req->params->{q};
+
+    my ( $search, $order );
+    if ( $q !~ /\s/ ) {
+        $search = {
+            '-or' => [
+                \[ "lower(me.name) ilike ?",        [ q => "%$q%" ] ],
+                \[ "lower(me.description) ilike ?", [ q => "%$q%" ] ],
+                \[ "lower(me.tags) ilike ?",        [ q => "%$q%" ] ],
+            ]
+        };
+    }
+    else {
+        $search = { indexable_text => \[ "@@ plainto_tsquery('pg_catalog.portuguese', ?)", $q ] };
+        $order = {
             order_by => [
 
                 \[ "TS_RANK_CD(indexable_text, plainto_tsquery('pg_catalog.portuguese', ?))", $c->req->params->{q} ]
-              ]
-            ,
+            ],
             columns => [qw/id/]
-        }
-    )->as_hashref->all;
+        };
+    }
+    my @ids = map { $_->{id} } $c->model('DB::Network')->search( $search, $order )->as_hashref->all;
 
     $self->status_ok( $c, entity => { ids => \@ids } );
 }
