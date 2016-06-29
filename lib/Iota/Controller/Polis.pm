@@ -50,28 +50,38 @@ sub acoes_item : Local : Args(1) {
 sub acoes_search_get_ids : Local : Args(0) {
     my ( $self, $c ) = @_;
 
-    my $q = lc $c->req->params->{q};
+    my $q = lc ($c->req->params->{q}||1);
+
+    my ($eixo) = $q =~ s/eixo\s*(\d+)// && $1;
 
     my ( $search, $order );
-    if ( $q !~ /\s/ ) {
+    if ( $q !~ /\s/ && $q ) {
         $search = {
             '-or' => [
-                \[ "lower(me.name) ilike ?",        [ q => "%$q%" ] ],
-                \[ "lower(me.description) ilike ?", [ q => "%$q%" ] ],
-                \[ "lower(me.tags) ilike ?",        [ q => "%$q%" ] ],
+                \[ "lower(unaccent(me.name)) ilike unaccent(?)",        [ q => "%$q%" ] ],
+                \[ "lower(unaccent(me.description)) ilike unaccent(?)", [ q => "%$q%" ] ],
+                \[ "lower(unaccent(me.tags)) ilike unaccent(?)",        [ q => "%$q%" ] ],
             ]
         };
     }
     else {
-        $search = { indexable_text => \[ "@@ plainto_tsquery('pg_catalog.portuguese', ?)", $q ] };
-        $order = {
-            order_by => [
+        if ($q) {
+            $search = { indexable_text => \[ "@@ plainto_tsquery('pg_catalog.portuguese', unaccent(?))", $q ] };
+            $order = {
+                order_by => [
 
-                \[ "TS_RANK_CD(indexable_text, plainto_tsquery('pg_catalog.portuguese', ?))", $c->req->params->{q} ]
-            ],
-            columns => [qw/id/]
-        };
+                    \[
+                        "TS_RANK_CD(indexable_text, plainto_tsquery('pg_catalog.portuguese', unaccent(?)))",
+                        $c->req->params->{q}
+                    ]
+                ],
+                columns => [qw/id/]
+            };
+        }
     }
+
+    $search->{axis_name} = { 'ilike' => "eixo $eixo%" } if $eixo;
+
     my @ids = map { $_->{id} } $c->model('DB::Network')->search( $search, $order )->as_hashref->all;
 
     $self->status_ok( $c, entity => { ids => \@ids } );
