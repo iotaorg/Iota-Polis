@@ -50,9 +50,9 @@ sub acoes_item : Local : Args(1) {
 sub acoes_search_get_ids : Local : Args(0) {
     my ( $self, $c ) = @_;
 
-    my $q = lc ($c->req->params->{q}||1);
+    my $q = lc( $c->req->params->{q} || '' );
 
-    my ($eixo) = $q =~ s/eixo\s*(\d+)// && $1;
+    my ($eixo) = $q =~ s/\s*eixo\s(\d+)\s*// && $1;
 
     my ( $search, $order );
     if ( $q !~ /\s/ && $q ) {
@@ -66,10 +66,17 @@ sub acoes_search_get_ids : Local : Args(0) {
     }
     else {
         if ($q) {
-            $search = { indexable_text => \[ "@@ plainto_tsquery('pg_catalog.portuguese', unaccent(?))", $q ] };
+            $search = {
+                '-or' => [
+                    \[ "lower(unaccent(me.name)) ilike unaccent(?)",        [ q => "%$q%" ] ],
+                    \[ "lower(unaccent(me.description)) ilike unaccent(?)", [ q => "%$q%" ] ],
+                    \[ "lower(unaccent(me.tags)) ilike unaccent(?)",        [ q => "%$q%" ] ],
+                    indexable_text => \[ "@@ plainto_tsquery('pg_catalog.portuguese', unaccent(?))", $q ]
+                ],
+
+            };
             $order = {
                 order_by => [
-
                     \[
                         "TS_RANK_CD(indexable_text, plainto_tsquery('pg_catalog.portuguese', unaccent(?)))",
                         $c->req->params->{q}
