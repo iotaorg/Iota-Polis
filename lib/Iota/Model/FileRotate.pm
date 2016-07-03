@@ -189,26 +189,29 @@ sub generate_variables {
     my ( $self, %opt ) = @_;
 
     my $var_vs_id;
+    my %seen_cognomens;
     foreach my $var ( @{ $opt{variables} } ) {
 
         my ( $line1, $line2 ) = split /\n/, $var;
         die 'Faltando segunda linha em "' . $var . '"' unless $line2;
-        my $cognomen = lc unac_string $line1;
         $line2 = unac_string $line2;
+        my $cognomen = uc $line2;
 
-        $cognomen =~ s/[^a-z0-9 ]//g;
+        $cognomen =~ s/[^A-Z0-9 ]//g;
         $cognomen =~ s/\s\s*/_/g;
         $cognomen =~ s/ /_/g;
-
-        $line2 =~ s/[^a-z0-9 ]//g;
-        $line2 =~ s/\s\s*/_/g;
+        if ( exists $seen_cognomens{$cognomen} ) {
+            die "Apelido $cognomen visto duas vezes no mesmo arquivo com nomes diferentes;"
+              . "('$seen_cognomens{$cognomen}' e '$line1').. Favor conferir e enviar novamente.\n";
+        }
+        $seen_cognomens{$cognomen} = $line1;
 
         my $vardef = $opt{rs}->search( { cognomen => $cognomen } )->next;
 
         $var_vs_id->{$var} = $vardef ? $vardef->id : $opt{rs}->create(
             {
                 name        => $line1,
-                explanation => $line2,
+                explanation => $line1,
                 cognomen    => $cognomen,
                 user_id     => $opt{user_id},
                 type        => 'str',

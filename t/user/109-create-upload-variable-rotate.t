@@ -96,9 +96,33 @@ eval {
                 ]
             );
             ok( $res->is_success, 'OK' );
-            is( $res->code, 200, 'upload done!' );
+            like( $res->as_string, qr/nomes diferentes/, 'arquivo invalido detectado' );
 
-            is( $schema->resultset('RegionVariableValue')->count, 27, 'valores importados' );
+            ( $res, $c ) = ctx_request(
+                POST '/api/variable/value_via_file_rotate',
+                'Content-Type' => 'form-data',
+                Content        => [
+                    api_key   => 'test',
+                    'arquivo' => ["$Bin/upload-rotate-arrumado.xls"],
+                ]
+            );
+            ok( $res->is_success, 'OK' );
+            like( $res->as_string, qr/valores atualizados: 21/i, 'upload done!' );
+
+            is( $schema->resultset('RegionVariableValue')->count, 21, 'valores importados' );
+
+            ( $res, $c ) = ctx_request(
+                POST '/api/variable/value_via_file_rotate',
+                'Content-Type' => 'form-data',
+                Content        => [
+                    api_key   => 'test',
+                    'arquivo' => ["$Bin/upload-rotate-remover.xls"],
+                ]
+            );
+            ok( $res->is_success, 'OK' );
+            like( $res->as_string, qr/valores removidos: 1/i, 'upload done!' );
+
+            is( $schema->resultset('RegionVariableValue')->count, 20, 'valores no banco' );
 
             die 'rollback';
         }

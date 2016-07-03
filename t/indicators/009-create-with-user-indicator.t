@@ -40,6 +40,36 @@ eval {
             ok( !$res->is_success, 'invalid request' );
             is( $res->code, 400, 'invalid request' );
 
+            ( $res, $c ) = ctx_request(
+                POST '/api/city',
+                [
+                    api_key                 => 'test',
+                    'city.create.name'      => 'Foo Bar',
+                    'city.create.state_id'  => 1,
+                    'city.create.latitude'  => 5666.55,
+                    'city.create.longitude' => 1000.11,
+                ]
+            );
+            ok( $res->is_success, 'city created!' );
+            is( $res->code, 201, 'created!' );
+
+            my $city_uri = $res->header('Location');
+            ( $res, $c ) = ctx_request(
+                POST $city_uri . '/region',
+                [
+                    api_key                                     => 'test',
+                    'city.region.create.subregions_valid_after' => '2015-01-01',
+                    'city.region.create.name'                   => 'a region',
+                    'city.region.create.description'            => 'with no description',
+                ]
+            );
+
+            ok( $res->is_success, 'region created!' );
+            is( $res->code, 201, 'region created!' );
+
+            my $reg1_uri = $res->header('Location');
+            my $reg1 = eval { from_json( $res->content ) };
+
             my $var1 = &new_var( 'int', 'weekly' );
 
             ( $res, $c ) = ctx_request(
@@ -71,15 +101,16 @@ eval {
                     api_key                              => 'test',
                     'user.indicator.create.goal'         => 'bass down low',
                     'user.indicator.create.indicator_id' => $ind->{id},
-                    'user.indicator.create.valid_from'   => '2012-11-21'
+                    'user.indicator.create.valid_from'   => '2012-11-21',
+                    'user.indicator.create.region_id' => $reg1->{id}
                 ]
             );
             use URI;
             my $uri = URI->new( $res->header('Location') );
 
+
             ( $res, $c ) = ctx_request( GET $uri->path_query );
             is( $res->code, 200, 'GET OK!!' );
-
             my $dados = eval { from_json( $res->content ) };
 
             is( $dados->{goal},         'bass down low', 'goal ok' );
@@ -110,7 +141,8 @@ eval {
                     api_key                              => 'test',
                     'user.indicator.create.goal'         => 'bass down low',
                     'user.indicator.create.indicator_id' => $ind->{id},
-                    'user.indicator.create.valid_from'   => '2012-11-25'
+                    'user.indicator.create.valid_from'   => '2012-11-25',
+                    'user.indicator.create.region_id' => $reg1->{id}
                 ]
             );
             is( $res->code, 201, 'created com nova data!' );
@@ -126,7 +158,8 @@ eval {
                     api_key                              => 'test',
                     'user.indicator.create.goal'         => 'my world ft giovanca',
                     'user.indicator.create.indicator_id' => $ind->{id},
-                    'user.indicator.create.valid_from'   => '2012-11-26'
+                    'user.indicator.create.valid_from'   => '2012-11-26',
+                    'user.indicator.create.region_id' => $reg1->{id}
                 ]
             );
 

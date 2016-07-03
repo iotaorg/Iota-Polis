@@ -28,16 +28,6 @@ use JSON qw(from_json);
 eval {
     $schema->txn_do(
         sub {
-            $schema->resultset('Network')->create(
-                {
-                    id           => 2,
-                    name         => 'Foo',
-                    name_url     => 'lala',
-                    created_by   => 1,
-                    institute_id => 1,
-                    domain_name  => ( rand() ),
-                }
-            );
 
             my ( $res, $c );
             ( $res, $c ) = ctx_request(
