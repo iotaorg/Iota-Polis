@@ -15,11 +15,12 @@ sub parse {
     open my $fh, "<:encoding(utf8)", $file or die "$file: $!";
 
     my %expected_header = (
-        id     => qr /\b(id da v.ri.vel|v.ri.vel id)\b/io,
-        date   => qr /\bdata\b/io,
-        value  => qr /\bvalor\b/io,
-        obs    => qr /\bobserva..o\b/io,
-        source => qr /\bfonte\b/io,
+        id      => qr /\b(id da v.ri.vel|v.ri.vel id)\b/io,
+        apelido => qr /\b(apelido)\b/io,
+        date    => qr /\bdata\b/io,
+        value   => qr /\bvalor\b/io,
+        obs     => qr /\bobserva..o\b/io,
+        source  => qr /\bfonte\b/io,
 
         region_id => qr /\b(id da regi.o|regi.o id)\b/io,
     );
@@ -69,7 +70,10 @@ sub parse {
                 $registro->{$header_name} = $value;
             }
 
-            if ( exists $registro->{id} && exists $registro->{date} && exists $registro->{value} ) {
+            if (   ( exists $registro->{id} || $registro->{apelido} )
+                && exists $registro->{date}
+                && exists $registro->{value}
+                && $registro->{region_id} ) {
 
                 $registro->{date} =
                     $registro->{date} =~ /^20[0123][0-9]$/       ? $registro->{date} . '-01-01'
@@ -77,8 +81,9 @@ sub parse {
                   :   DateTime::Format::Excel->parse_datetime( $registro->{date} )->ymd;
                 $ok++;
 
-                die 'invalid variable id' unless $registro->{id} =~ /^\d+$/;
-                die 'invalid region id' if $registro->{region_id} && $registro->{region_id} !~ /^\d+$/;
+                do { die 'id de variavel precisa ser numerico' unless $registro->{id} =~ /^\d+$/ }
+                  if $registro->{id};
+                die 'regiao precisa ser numerico' if $registro->{region_id} && $registro->{region_id} !~ /^\d+$/;
 
                 push @rows, $registro;
 

@@ -105,8 +105,8 @@ sub parse {
                       : $registro->{date} =~ /^\d{4}\-\d{2}\-\d{2}$/ ? $registro->{date}
                       :   DateTime::Format::Excel->parse_datetime( $registro->{date} )->ymd;
 
-                    die "Data inválida: " . $registro->{date} unless $registro->{date} =~ /\d{4}-\d{2}-\d{2}/;
-                    die 'Região Inválida' if $registro->{region_id} && $registro->{region_id} !~ /^\d+$/;
+                    die "Data invalida: " . $registro->{date} unless $registro->{date} =~ /\d{4}-\d{2}-\d{2}/;
+                    die 'Região Invalida' if $registro->{region_id} && $registro->{region_id} !~ /^\d+$/;
 
                     foreach my $varname ( keys %$variables ) {
                         $registro->{vars}{$varname} = $data[ $variables->{$varname} ];
@@ -116,14 +116,14 @@ sub parse {
 
                 }
                 else {
-                    push @{$ignored}, "'${\$sheet->name}' Line $row_num";
+                    push @{$ignored}, "'${\$sheet->name}' Linha $row_num";
                 }
 
             }
         }
     }
 
-    die "header not found" unless \@rows;
+    die "cabecalho nao encontrado" unless \@rows;
 
     return {
         rows         => \@rows,

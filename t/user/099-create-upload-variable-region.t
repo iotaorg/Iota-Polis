@@ -135,7 +135,7 @@ eval {
             ok( $res->is_success, 'OK' );
             is( $res->code, 200, 'upload done!' );
 
-            like( $res->content, qr/invalid region id/, 'invalid region id' );
+            like( $res->content, qr/regiao precisa ser numeric/, 'regiao precisa ser numeric' );
 
             die 'rollback';
         }
