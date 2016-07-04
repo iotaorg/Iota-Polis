@@ -93,13 +93,34 @@ sub menus : Local : Args(0) {
     my @menus = $c->model('DB::UserMenu')->search(
         undef,
         {
-            order_by     => [ {-desc => 'menu_id'}, 'position' ],
+            order_by     => [ { -desc => 'menu_id' }, 'position' ],
             prefetch     => 'page',
             result_class => 'DBIx::Class::ResultClass::HashRefInflator'
         }
     )->all;
 
     $self->status_ok( $c, entity => { menus => \@menus } );
+}
+
+sub indicadores_acao : Local : Args(1) {
+    my ( $self, $c, $acao_id ) = @_;
+
+    my @indicators = $c->model('DB::Indicator')->search(
+        { 'indicator_network_visibilities.network_id' => $acao_id },
+        {
+            join    => ['indicator_network_visibilities'],
+            columns => [
+                qw /id name name_url /,
+                { 'reservado'         => \'goal_explanation as reservado' },
+                { 'descricao_formula' => \'explanation as descricao_formula' },
+                { 'nossa_leitura'     => \'observations as nossa_leitura' },
+            ],
+            result_class => 'DBIx::Class::ResultClass::HashRefInflator',
+            order_by     => 'name'
+        }
+    )->all;
+
+    $self->status_ok( $c, entity => { indicators => \@indicators } );
 }
 
 __PACKAGE__->meta->make_immutable;
