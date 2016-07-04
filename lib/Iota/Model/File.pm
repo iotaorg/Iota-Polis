@@ -59,6 +59,7 @@ sub process {
         $varids{ $r->{id} }         = 1;
         $apelidos{ $r->{cognomen} } = $r->{id};
     }
+
     # mais um loop pra arrumar toda a lista...
     foreach ( @{ $parse->{rows} } ) {
         next unless $_->{apelido};
@@ -79,7 +80,7 @@ sub process {
       ->search( { id => { in => [ keys %regsids ] } }, { select => [qw/id depth_level/], as => [qw/id depth_level/] } )
       ->as_hashref->all;
 
-    my %reg_vs_id = map { $_->{id} => $_ } @regs_db;
+    my %reg_vs_depth = map { $_->{id} => $_->{depth_level} } @regs_db;
 
     # se tem menos variaveis no banco do que as enviadas
     if ( @vars_db < keys %varids ) {
@@ -164,9 +165,10 @@ sub process {
                     if ( exists $r->{region_id} && $r->{region_id} ) {
                         $ref->{region_id} = $r->{region_id};
 
-                        $with_region->{variables}{ $r->{id} }      = 1;
-                        $with_region->{dates}{ $r->{date} }        = 1;
-                        $with_region->{regions}{ $r->{region_id} } = 1;
+                        my $depth = $reg_vs_depth{ $r->{region_id} };
+                        $with_region->{$depth}{variables}{ $r->{id} }      = 1;
+                        $with_region->{$depth}{dates}{ $r->{date} }        = 1;
+                        $with_region->{$depth}{regions}{ $r->{region_id} } = 1;
 
                         eval { $rvv_rs->_put( $periods{ $r->{id} }, %$ref ); };
                     }
@@ -180,14 +182,18 @@ sub process {
                     die $@ if $@;
                 }
                 my $data = Iota::IndicatorData->new( schema => $schema->schema );
-                if ( exists $with_region->{dates} ) {
-                    $data->upsert(
-                        indicators =>
-                          [ $data->indicators_from_variables( variables => [ keys %{ $with_region->{variables} } ] ) ],
-                        dates      => [ keys %{ $with_region->{dates} } ],
-                        regions_id => [ keys %{ $with_region->{regions} } ],
-                        user_id    => $user_id
-                    );
+                if ( keys %$with_region ) {
+
+                    foreach my $depth ( sort { $b <=> $a } keys %$with_region ) {
+                        my $rregion = $with_region->{$depth};
+                        $data->upsert(
+                            indicators =>
+                              [ $data->indicators_from_variables( variables => [ keys %{ $rregion->{variables} } ] ) ],
+                            dates      => [ keys %{ $rregion->{dates} } ],
+                            regions_id => [ keys %{ $rregion->{regions} } ],
+                            user_id    => $user_id
+                        );
+                    }
                 }
                 if ( exists $without_region->{dates} ) {
                     $data->upsert(
