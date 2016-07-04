@@ -45,7 +45,7 @@ sub process {
     if ( @apelidosdb < keys %apelidos ) {
         $status = '';
         foreach my $id ( keys %apelidos ) {
-            my $exists = grep { $_->{id} eq $id } @apelidosdb;
+            my $exists = grep { $_->{cognomen} eq $id } @apelidosdb;
 
             $status .= "Apelido '$id' nao existe.\n"
               unless $exists;
@@ -59,13 +59,11 @@ sub process {
         $varids{ $r->{id} }         = 1;
         $apelidos{ $r->{cognomen} } = $r->{id};
     }
-
     # mais um loop pra arrumar toda a lista...
     foreach ( @{ $parse->{rows} } ) {
         next unless $_->{apelido};
         $_->{id} = $apelidos{ $_->{apelido} };
     }
-
     my $file_id;
 
     my @vars_db =
@@ -222,25 +220,25 @@ sub _verify_variable_type {
     # certo, entao agora o type é int ou num.
 
     # vamos tratar o caso mais comum, que é [0-9]{1,3}\.[0-9]{1,3},[0-9]
-    if ( $value =~ /[0-9]{1,3}\.[0-9]{1,3},[0-9]{1,9}$/ ) {
+    if ( $value =~ /-?[0-9]{1,3}\.[0-9]{1,3},[0-9]{1,20}$/ ) {
         $value =~ s/\.//g;
         $value =~ s/,/./;
     }
 
     # valores só com virgula.. eh . no banco..
-    elsif ( $value =~ /^[0-9]{1,15},[0-9]{1,9}$/ ) {
+    elsif ( $value =~ /^-?[0-9]{1,20},[0-9]{1,20}$/ ) {
 
         $value =~ s/,/./;
     }
 
     # e agora o inverso... usou , e depois um .
-    elsif ( $value =~ /[0-9]{1,3}\,[0-9]{1,3}.[0-9]{1,9}$/ ) {
+    elsif ( $value =~ /-?[0-9]{1,3}\,[0-9]{1,3}.[0-9]{1,20}$/ ) {
         $value =~ s/,//g;
         $value =~ s/\./,/;
     }
 
     # se parece com numero ?
-    if ( $value =~ /^[0-9]{1,15}\.[0-9]{1,9}$/ || $value =~ /^[0-9]{1,15}$/ ) {
+    if ( $value =~ /^-?[0-9]{1,20}\.[0-9]{1,20}$/ || $value =~ /^-?[0-9]{1,20}$/ ) {
 
         $value = int($value) if $type eq 'int';
 

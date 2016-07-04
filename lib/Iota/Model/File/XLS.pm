@@ -23,7 +23,7 @@ sub parse {
         obs     => qr /\bobserva..o\b/io,
         source  => qr /\bfonte\b/io,
 
-        region_id => qr /\b(id da regi.o|regi.o id)\b/io,
+        region_id => qr /\b(id da regi.o|regi.o id|id_ibge)\b/io,
     );
 
     my @rows;
@@ -31,11 +31,13 @@ sub parse {
     my $ignored = 0;
     my $header_found;
     while ( my $sheet = $xls->sheet() ) {
-
+        my $sheet_name = $sheet->name;
         my $header_map = {};
         $header_found = 0;
 
+        my $linenum = 0;
         while ( my $row = $sheet->row ) {
+            $linenum++;
 
             my @data = @$row;
 
@@ -80,11 +82,24 @@ sub parse {
                     && exists $registro->{value}
                     && $registro->{region_id} ) {
 
+                    my $data_antes = $registro->{date};
+                    $registro->{date} =~ s|^(\d)/(\d)/(\d{2})$|20$3-0$2-0$1|;
+                    $registro->{date} =~ s|^(\d)/(\d)/(\d{4})$|$3-0$2-0$1|;
+                    $registro->{date} =~ s|^(\d\d)/(\d\d)/(\d{2})$|20$3-$2-$1|;
+                    $registro->{date} =~ s|^(\d\d)/(\d\d)/(\d{4})$|$3-$2-$1|;
+
                     $registro->{date} =
                         $registro->{date} =~ /^20[0123][0-9]$/       ? $registro->{date} . '-01-01'
                       : $registro->{date} =~ /^\d{4}\-\d{2}\-\d{2}$/ ? $registro->{date}
-                      :   DateTime::Format::Excel->parse_datetime( $registro->{date} )->ymd;
+                      :   eval { DateTime::Format::Excel->parse_datetime( $registro->{date} )->ymd };
+                    if ($@) {
+                        die "problemas para entender a data '$data_antes' na linha $linenum '$sheet_name' \n";
+                    }
                     $ok++;
+
+                    use DDP; p $registro;
+                    die "o apelido 0.00E+00 provavlmente eh um engano na linha $linenum '$sheet_name' \n"
+                      if exists $registro->{apelido} && $registro->{apelido} eq '0.00E+00';
 
                     do { die 'id de variavel precisa ser numerico' unless $registro->{id} =~ /^\d+$/ }
                       if $registro->{id};
@@ -94,6 +109,8 @@ sub parse {
 
                 }
                 else {
+
+                    use DDP; p $registro;
                     $ignored++;
                 }
 

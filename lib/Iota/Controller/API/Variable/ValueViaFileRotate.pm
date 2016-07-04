@@ -6,6 +6,7 @@ use JSON;
 use Text2URI;
 use String::Random;
 use Path::Class qw(dir);
+use HTML::Entities;
 
 BEGIN { extends 'Catalyst::Controller::REST' }
 
@@ -61,6 +62,8 @@ sub file_POST {
                 private_path => $private_path,
                 public_path  => $public_path,
             );
+
+            $file->{status} = encode_entities($file->{status});
 
             $c->res->body( to_json($file) );
 

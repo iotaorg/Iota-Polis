@@ -24,15 +24,17 @@ sub parse {
         obs    => qr /\bobserva..o\b/io,
         source => qr /\bfonte\b/io,
 
-        region_id => qr /\b(id da regi.o|regi.o id)\b/io,
+        region_id => qr /\b(id da regi.o|regi.o id|id_ibge)\b/io,
     );
 
     my @rows;
     my $ok      = 0;
     my $ignored = 0;
     my $header_found;
+    my $linenum = 0;
     for my $worksheet ( @{ $excel->{Worksheet} } ) {
 
+        my $sheet_name = $worksheet->{Name};
         my ( $row_min, $row_max ) = $worksheet->row_range();
         my ( $col_min, $col_max ) = $worksheet->col_range();
 
@@ -40,6 +42,7 @@ sub parse {
         $header_found = 0;
 
         for my $row ( $row_min .. $row_max ) {
+            $linenum++;
 
             if ( !$header_found ) {
                 for my $col ( $col_min .. $col_max ) {
@@ -85,10 +88,19 @@ sub parse {
                     && exists $registro->{value}
                     && $registro->{region_id} ) {
 
+                    my $data_antes = $registro->{date};
+                    $registro->{date} =~ s|^(\d)/(\d)/(\d{2})$|20$3-0$2-0$1|;
+                    $registro->{date} =~ s|^(\d)/(\d)/(\d{4})$|$3-0$2-0$1|;
+                    $registro->{date} =~ s|^(\d\d)/(\d\d)/(\d{2})$|20$3-$2-$1|;
+                    $registro->{date} =~ s|^(\d\d)/(\d\d)/(\d{4})$|$3-$2-$1|;
+
                     $registro->{date} =
                         $registro->{date} =~ /^20[0123][0-9]$/       ? $registro->{date} . '-01-01'
                       : $registro->{date} =~ /^\d{4}\-\d{2}\-\d{2}$/ ? $registro->{date}
-                      :   DateTime::Format::Excel->parse_datetime( $registro->{date} )->ymd;
+                      :   eval { DateTime::Format::Excel->parse_datetime( $registro->{date} )->ymd };
+                    if ($@) {
+                        die "problemas para entender a data '$data_antes' na linha $linenum '$sheet_name' \n";
+                    }
                     $ok++;
 
                     do { die 'id de variavel precisa ser numerico' unless $registro->{id} =~ /^\d+$/ }

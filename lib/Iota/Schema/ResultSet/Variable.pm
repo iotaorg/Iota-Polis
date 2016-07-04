@@ -31,6 +31,10 @@ sub verifiers_specs {
                     type       => 'Str',
                     post_check => sub {
                         my $r = shift;
+                        return 0
+                          if $self->result_source->schema->resultset('Variable')
+                          ->search( { cognomen => $r->get_value('cognomen') } )->count;
+
                         return $r->get_value('cognomen') =~ /^(?:[A-Z0-9_])+$/i;
                       }
                 },
@@ -66,6 +70,11 @@ sub verifiers_specs {
                     type       => 'Str',
                     post_check => sub {
                         my $r = shift;
+                        return 0
+                          if $self->result_source->schema->resultset('Variable')
+                          ->search( { id => { '!=' => $r->get_value('id') }, cognomen => $r->get_value('cognomen') } )
+                          ->count;
+
                         return $r->get_value('cognomen') =~ /^(?:[A-Z0-9_])+$/i;
                       }
                 },

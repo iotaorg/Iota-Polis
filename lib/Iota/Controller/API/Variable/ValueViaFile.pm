@@ -21,6 +21,8 @@ sub base : Chained('/api/variable/base') : PathPart('value_via_file') : CaptureA
 sub file : Chained('base') : PathPart('') : Args(0) ActionClass('REST') {
     my ( $self, $c ) = @_;
 }
+use HTML::Entities;
+
 
 sub file_POST {
     my ( $self, $c ) = @_;
@@ -64,6 +66,8 @@ sub file_POST {
                 public_path  => $public_path,
             );
 
+            $file->{status} = encode_entities($file->{status});
+
             $c->res->body( to_json($file) );
 
         }
@@ -74,7 +78,7 @@ sub file_POST {
     die $@ if $@ && ref $@;
 
     print STDERR " >>>>> $@" if $@;
-    $c->res->body( to_json( { error => "$@" } ) ) if $@;
+    $c->res->body( to_json( { error => encode_entities("$@") } ) ) if $@;
 
     $c->detach;
 
