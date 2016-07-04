@@ -31,7 +31,7 @@ sub verifiers_specs {
                     type       => 'Str',
                     post_check => sub {
                         my $r = shift;
-                        return $r->get_value('cognomen') =~ /^[A-Z](?:[A-Z0-9_])+$/i;
+                        return $r->get_value('cognomen') =~ /^(?:[A-Z0-9_])+$/i;
                       }
                 },
                 type                => { required => 1, type => VariableType },
@@ -66,7 +66,7 @@ sub verifiers_specs {
                     type       => 'Str',
                     post_check => sub {
                         my $r = shift;
-                        return $r->get_value('cognomen') =~ /^[A-Z](?:[A-Z0-9_])+$/i;
+                        return $r->get_value('cognomen') =~ /^(?:[A-Z0-9_])+$/i;
                       }
                 },
                 type                => { required => 0, type => VariableType },
