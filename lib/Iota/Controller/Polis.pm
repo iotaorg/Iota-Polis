@@ -123,6 +123,49 @@ sub indicadores_acao : Local : Args(1) {
     $self->status_ok( $c, entity => { indicators => \@indicators } );
 }
 
+sub _limpa_ano {
+    substr( shift, 0, 4 );
+}
+
+sub indicador_tabela_rot_regiao : Local : Args(1) {
+    my ( $self, $c, $indicador_id ) = @_;
+
+    my $rs = $c->model('DB::IndicatorValue')->search(
+        { 'indicator_id' => $indicador_id },
+        {
+            join         => [],
+            columns      => [ qw /region_id value valid_from/, ],
+            result_class => 'DBIx::Class::ResultClass::HashRefInflator',
+        }
+    );
+    my $rot = {};
+    my %lines;
+    while ( my $r = $rs->next ) {
+        $rot->{ $r->{valid_from} }{ $r->{region_id} } = $r->{value};
+        $lines{ $r->{valid_from} } = 1;
+    }
+
+    my @headers = map { { k => $_->{id}, v => $_->{name} } } $c->model('DB::Region')->search(
+        {
+            id => {
+                in => [
+                    351,     35063,   3537602, 3522109, 3531100, 3541000, 3551009, 3548500,
+                    3513504, 3518701, 3506359, 35054,   3550704, 3520400, 3510500, 3555406,
+                ]
+            }
+        },
+        {
+            columns      => [qw/name id/],
+            result_class => 'DBIx::Class::ResultClass::HashRefInflator',
+            order_by     => [ { -desc => 'depth_level' }, 'upper_region', 'name' ]
+        }
+    )->all;
+
+    my @lines = sort { $a->{k} cmp $b->{k} } map { { k => $_, v => &_limpa_ano($_) } } keys %lines;
+
+    $self->status_ok( $c, entity => { data => $rot, headers => \@headers, lines => \@lines } );
+}
+
 __PACKAGE__->meta->make_immutable;
 
 1;
