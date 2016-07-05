@@ -224,7 +224,7 @@ sub indicador_tabela_rot_txt : Local : Args(1) {
     my ( $formula, @variables_id ) = ( $indicador->formula );
     push @variables_id, $1 while ( $formula =~ /\$(\d+)\b/go );
 
-    my @headers = map { { k => $_->{id}, v => $_->{cognomen}, c => $_->{colors} } } $c->model('DB::Variable')->search(
+    my @headers = map { { k => $_->{id}, v => $_->{cognomen}, name => $_->{name}, c => $_->{colors} } } $c->model('DB::Variable')->search(
         { id => { in => \@variables_id } },
         {
             columns      => [qw/name cognomen id colors/],
@@ -232,7 +232,17 @@ sub indicador_tabela_rot_txt : Local : Args(1) {
         }
     )->all;
 
-    $self->status_ok( $c, entity => { data => $rot, headers => \@headers, lines => \@lines } );
+    my %variable_colors;
+    foreach my $v (@headers){
+        my $c = delete $v->{c};
+        if($c){
+            $c=  decode_json ( encode 'utf8', $c);
+            $variable_colors{$v->{k}} = $c;
+        }
+    }
+
+use DDP; p \%variable_colors;
+    $self->status_ok( $c, entity => { data => $rot, headers => \@headers, lines => \@lines, variable_colors=>\%variable_colors } );
 }
 
 __PACKAGE__->meta->make_immutable;
