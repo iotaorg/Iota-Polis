@@ -59,7 +59,7 @@ sub parse {
                     die "Faltando coluna Região\n" unless exists $header_map->{region_id};
                     die "Faltando coluna start_var\n" unless exists $header_map->{start_var};
 
-                    for my $col ( $header_map->{start_var} + 2 .. ( scalar @data - 1 ) ) {
+                    for my $col ( $header_map->{start_var} + 1 .. ( scalar @data - 1 ) ) {
 
                         my $cell = $data[$col];
                         next unless $cell;
