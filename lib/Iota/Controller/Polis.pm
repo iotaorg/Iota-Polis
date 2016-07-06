@@ -241,7 +241,6 @@ sub indicador_tabela_rot_txt : Local : Args(1) {
         }
     }
 
-use DDP; p \%variable_colors;
     $self->status_ok( $c, entity => { data => $rot, headers => \@headers, lines => \@lines, variable_colors=>\%variable_colors } );
 }
 
