@@ -102,7 +102,12 @@ sub menus : Local : Args(0) {
         undef,
         {
             order_by     => [ { -desc => 'menu_id' }, 'position' ],
-            prefetch     => 'page',
+            join     => 'page',
+            collapse => 1,
+            columns => [
+                'page.title_url','page.title',
+                'me.id','me.menu_id','me.page_id','me.title',
+            ],
             result_class => 'DBIx::Class::ResultClass::HashRefInflator'
         }
     )->all;
