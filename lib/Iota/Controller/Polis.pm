@@ -101,18 +101,29 @@ sub menus : Local : Args(0) {
     my @menus = $c->model('DB::UserMenu')->search(
         undef,
         {
-            order_by     => [ { -desc => 'menu_id' }, 'position' ],
+            order_by => [ { -desc => 'menu_id' }, 'position' ],
             join     => 'page',
             collapse => 1,
-            columns => [
-                'page.title_url','page.title',
-                'me.id','me.menu_id','me.page_id','me.title',
-            ],
+            columns => [ 'page.title_url', 'page.title', 'me.id', 'me.menu_id', 'me.page_id', 'me.title', ],
             result_class => 'DBIx::Class::ResultClass::HashRefInflator'
         }
     )->all;
 
     $self->status_ok( $c, entity => { menus => \@menus } );
+}
+
+sub pagina : Local : Args(1) {
+    my ( $self, $c, $page_id ) = @_;
+
+    my $page = $c->model('DB::UserPage')->search(
+        { 'me.title_url' => $page_id },
+        {
+            columns      => [ 'me.title', 'me.content' ],
+            result_class => 'DBIx::Class::ResultClass::HashRefInflator'
+        }
+    )->next;
+
+    $self->status_ok( $c, entity => { page => $page } );
 }
 
 sub indicadores_acao : Local : Args(1) {
@@ -201,7 +212,7 @@ sub indicador_tabela_rot_txt : Local : Args(1) {
     my $rs = $c->model('DB::IndicatorValue')->search(
         {
             'indicator_id' => $indicador_id,
-            valid_from     => '2000-01-01', # por enquanto só vamos usar ano 2000 para essas variaveis
+            valid_from     => '2000-01-01',    # por enquanto só vamos usar ano 2000 para essas variaveis
         },
         {
             join         => [],
@@ -236,24 +247,27 @@ sub indicador_tabela_rot_txt : Local : Args(1) {
     my ( $formula, @variables_id ) = ( $indicador->formula );
     push @variables_id, $1 while ( $formula =~ /\$(\d+)\b/go );
 
-    my @headers = map { { k => $_->{id}, v => $_->{cognomen}, name => $_->{name}, c => $_->{colors} } } $c->model('DB::Variable')->search(
+    my @headers =
+      map { { k => $_->{id}, v => $_->{cognomen}, name => $_->{name}, c => $_->{colors} } }
+      $c->model('DB::Variable')->search(
         { id => { in => \@variables_id } },
         {
             columns      => [qw/name cognomen id colors/],
             result_class => 'DBIx::Class::ResultClass::HashRefInflator'
         }
-    )->all;
+      )->all;
 
     my %variable_colors;
-    foreach my $v (@headers){
+    foreach my $v (@headers) {
         my $c = delete $v->{c};
-        if($c){
-            $c=  decode_json ( encode 'utf8', $c);
-            $variable_colors{$v->{k}} = $c;
+        if ($c) {
+            $c = decode_json( encode 'utf8', $c );
+            $variable_colors{ $v->{k} } = $c;
         }
     }
 
-    $self->status_ok( $c, entity => { data => $rot, headers => \@headers, lines => \@lines, variable_colors=>\%variable_colors } );
+    $self->status_ok( $c,
+        entity => { data => $rot, headers => \@headers, lines => \@lines, variable_colors => \%variable_colors } );
 }
 
 __PACKAGE__->meta->make_immutable;
