@@ -84,7 +84,7 @@ __PACKAGE__->table("variable");
 =head2 period
 
   data_type: 'enum'
-  extra: {custom_type_name => "period_enum",list => ["daily","weekly","monthly","bimonthly","quarterly","semi-annual","yearly","decade"]}
+  extra: {custom_type_name => "period_enum",list => ["daily","weekly","monthly","bimonthly","quarterly","semi-annual","yearly","decade","century"]}
   is_nullable: 0
 
 =head2 source
@@ -171,6 +171,7 @@ __PACKAGE__->add_columns(
         "semi-annual",
         "yearly",
         "decade",
+        "century",
       ],
     },
     is_nullable => 0,
@@ -337,8 +338,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07043 @ 2016-06-21 19:12:14
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:53s5o9Iu84T4oOrZdy6Urw
+# Created by DBIx::Class::Schema::Loader v0.07043 @ 2016-07-07 18:12:38
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Uah+Vutw/gxFSa/aQ3Ue/Q
 
 __PACKAGE__->belongs_to(
     "owner", "Iota::Schema::Result::User",

@@ -25,7 +25,7 @@ sub parse {
     my $ignored = [];
     my $header_found;
     my $total_vars;
-    my $period = 'decade';
+    my $period = 'century';
     my $type = 'str';
     my $start_var_evalued;
     while ( my $sheet = $xls->sheet() ) {
@@ -116,7 +116,7 @@ sub parse {
 
                     push @rows, $registro;
 
-                    if (!$start_var_evalued && $registro->{start_var} =~ /^(num|str|int)\/(yearly|decade)$/i ) {
+                    if (!$start_var_evalued && $registro->{start_var} =~ /^(num|str|int)\/(yearly|decade|century)$/i ) {
                         $type = lc $1;
                         $period = lc $2;
                         $start_var_evalued = 1;
