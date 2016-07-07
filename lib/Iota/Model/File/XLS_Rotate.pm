@@ -17,7 +17,7 @@ sub parse {
     my %expected_header = (
         date      => qr /\bdata\b/io,
         source    => qr /\bfonte\b/io,
-        start_var => qr /\bstartvar\b/io,
+        start_var => qr /^(startvar|id.variavel)$/io,
         region_id => qr /\b(id da regi.o|regi.o id|id.ibge)\b/io,
     );
 
@@ -25,7 +25,9 @@ sub parse {
     my $ignored = [];
     my $header_found;
     my $total_vars;
-
+    my $period = 'decade';
+    my $type = 'str';
+    my $start_var_evalued;
     while ( my $sheet = $xls->sheet() ) {
 
         my $header_map = {};
@@ -39,8 +41,8 @@ sub parse {
             my @data = @$row;
 
             if ( !$header_found ) {
-
                 for my $col ( 0 .. ( scalar @data - 1 ) ) {
+
                     my $cell = $data[$col];
                     next unless $cell;
 
@@ -81,7 +83,6 @@ sub parse {
                 # neste caso, achar apenas 1 cabeçalho já é o suficiente
 
                 my $registro = {};
-
                 foreach my $header_name ( keys %$header_map ) {
                     my $col = $header_map->{$header_name};
 
@@ -95,6 +96,7 @@ sub parse {
                     $value = decode( 'iso-8859-15', $value );
                     $registro->{$header_name} = $value;
                 }
+
 
                 if (   exists $registro->{region_id}
                     && exists $registro->{date}
@@ -114,6 +116,12 @@ sub parse {
 
                     push @rows, $registro;
 
+                    if (!$start_var_evalued && $registro->{start_var} =~ /^(num|str|int)\/(yearly|decade)$/i ) {
+                        $type = lc $1;
+                        $period = lc $2;
+                        $start_var_evalued = 1;
+                    }
+
                 }
                 else {
                     push @{$ignored}, "'${\$sheet->name}' Linha $row_num";
@@ -128,7 +136,10 @@ sub parse {
     return {
         rows         => \@rows,
         ignored      => $ignored,
-        variables => [keys %$total_vars]
+        variables => [keys %$total_vars],
+        period => $period,
+        type => $type
+
 
     };
 }

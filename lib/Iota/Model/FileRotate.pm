@@ -45,7 +45,10 @@ sub process {
     my %variables = $self->generate_variables(
         variables => $parse->{variables},
         user_id   => $param{user_id},
-        rs        => $schema->resultset('Variable')
+        rs        => $schema->resultset('Variable'),
+        period => $parse->{period},
+        type => $parse->{type},
+
     );
 
     my $file_id;
@@ -81,7 +84,7 @@ sub process {
 
                     # $r->{value} = $self->_verify_variable_type( $r->{value}, $type );
 
-                    next if $value eq '';
+                    next if !defined $value || $value eq '';
                     if ( $value eq '-' ) {
 
                         # TODO: procurar pela data certa.
@@ -118,7 +121,7 @@ sub process {
                     $with_region->{regions}{ $r->{region_id} }       = 1;
 
                     # TODO fix this decade...
-                    eval { $rvv_rs->_put( 'decade', %$ref ); };
+                    eval { $rvv_rs->_put( $parse->{period}, %$ref ); };
 
                     die $@ if $@;
                 }
@@ -214,8 +217,8 @@ sub generate_variables {
                 explanation => $line1,
                 cognomen    => $cognomen,
                 user_id     => $opt{user_id},
-                type        => 'str',
-                period      => 'decade',
+                type        => $opt{type},
+                period      => $opt{period},
 
             }
         )->id;

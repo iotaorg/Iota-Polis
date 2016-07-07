@@ -124,6 +124,21 @@ eval {
 
             is( $schema->resultset('RegionVariableValue')->count, 20, 'valores no banco' );
 
+            ( $res, $c ) = ctx_request(
+                POST '/api/variable/value_via_file_rotate',
+                'Content-Type' => 'form-data',
+                Content        => [
+                    api_key   => 'test',
+                    'arquivo' => ["$Bin/upload-numeric.xls"],
+                ]
+            );
+            ok( $res->is_success, 'OK' );
+            like( $res->as_string, qr/valores removidos: 0/i, 'upload done!' );
+
+            is( $schema->resultset('Variable')->search({cognomen => 'APELIDOX'})->next->period, 'yearly', 'var ok' );
+            is( $schema->resultset('Variable')->search({cognomen => 'APELIDOX'})->next->type, 'num', 'var ok' );
+
+
             die 'rollback';
         }
     );
