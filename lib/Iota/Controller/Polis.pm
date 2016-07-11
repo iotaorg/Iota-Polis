@@ -45,6 +45,10 @@ sub acoes_item : Local : Args(1) {
         )
     };
 
+    my ($a) = $item->{axis_name} =~ /eixo\s*(\d)/i;
+    my ($b) =  $item->{name} =~ /a..o\s(.)/i;
+    $item->{eixo_acao} = uc "$a$b";
+
     $self->status_ok( $c, entity => $item );
 }
 
