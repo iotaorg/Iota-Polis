@@ -19,7 +19,7 @@ install:
   - cpanm -n DBIx::Class::Optional::Dependencies
   - cpanm -n --installdeps .
 before_script:
-  - psql -c 'create database iota_dev;' -U postgres
+  - psql -c 'create database polis_dev;' -U postgres
   - sqitch deploy -t local
 notifications:
   irc:
