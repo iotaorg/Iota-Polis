@@ -14,9 +14,9 @@ Instituto Ethos de Empresas e Responsabilidade Social e Rede Social Brasileira p
 
 Essas são as modificações principais no backend do Iota, no polis:
 
-. As redes são ações
-. Só existe 1 cidade, todo o resto são regiões.
-. Não há mais nada de frontend, apenas backend aqui. Porem, os arquivos estaticos /static ainda são usados pelo Iota-Polis-Admin-Frontend
+* As redes são ações
+* Só existe 1 cidade, todo o resto são regiões.
+* Não há mais nada de frontend, apenas backend aqui. Porem, os arquivos estaticos /static ainda são usados pelo Iota-Polis-Admin-Frontend
 
 
 
