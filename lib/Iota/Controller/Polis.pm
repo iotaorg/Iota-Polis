@@ -46,7 +46,7 @@ sub acoes_item : Local : Args(1) {
     };
 
     my ($a) = $item->{axis_name} =~ /eixo\s*(\d)/i;
-    my ($b) =  $item->{name} =~ /a..o\s(.)/i;
+    my ($b) = $item->{name}      =~ /a..o\s(.)/i;
     $item->{eixo_acao} = uc "$a$b";
 
     $self->status_ok( $c, entity => $item );
@@ -63,9 +63,15 @@ sub acoes_search_get_ids : Local : Args(0) {
     if ( $q !~ /\s/ && $q ) {
         $search = {
             '-or' => [
-                \[ "lower(unaccent(me.name)) ilike unaccent(?)",        [ q => "%$q%" ] ],
-                \[ "lower(unaccent(me.description)) ilike unaccent(?)", [ q => "%$q%" ] ],
-                \[ "lower(unaccent(me.tags)) ilike unaccent(?)",        [ q => "%$q%" ] ],
+                \[ "lower(unaccent(me.name)) ilike unaccent(?)", [ q => length $q == 1 ? "% $q %" : "% $q%" ] ],
+                (
+                    length $q > 2
+                    ? (
+                        \[ "lower(unaccent(me.description)) ilike unaccent(?)", [ q => "%$q%" ] ],
+                        \[ "lower(unaccent(me.tags)) ilike unaccent(?)",        [ q => "%$q%" ] ]
+                      )
+                    : ()
+                ),
             ]
         };
     }
@@ -73,9 +79,15 @@ sub acoes_search_get_ids : Local : Args(0) {
         if ($q) {
             $search = {
                 '-or' => [
-                    \[ "lower(unaccent(me.name)) ilike unaccent(?)",        [ q => "%$q%" ] ],
-                    \[ "lower(unaccent(me.description)) ilike unaccent(?)", [ q => "%$q%" ] ],
-                    \[ "lower(unaccent(me.tags)) ilike unaccent(?)",        [ q => "%$q%" ] ],
+                    \[ "lower(unaccent(me.name)) ilike unaccent(?)", [ q => length $q == 1 ? "% $q %" : "% $q%" ] ],
+                    (
+                        length $q > 2
+                        ? (
+                            \[ "lower(unaccent(me.description)) ilike unaccent(?)", [ q => "%$q%" ] ],
+                            \[ "lower(unaccent(me.tags)) ilike unaccent(?)",        [ q => "%$q%" ] ]
+                          )
+                        : ()
+                    ),
                     indexable_text => \[ "@@ plainto_tsquery('pg_catalog.portuguese', unaccent(?))", $q ]
                 ],
 
