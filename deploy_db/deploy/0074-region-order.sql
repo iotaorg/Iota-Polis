@@ -23,4 +23,8 @@ update region set display_order=11 where name ilike '%Mongaguá%';
 update region set display_order=12 where name ilike '%Itanhaém%';
 update region set display_order=13 where name ilike '%Peruíbe%';
 
+update region set display_order=10000000 where name ilike '%Litoral Sustentável%';
+
+
+
 COMMIT;
