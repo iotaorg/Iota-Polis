@@ -108,6 +108,11 @@ __PACKAGE__->table("region");
   data_type: 'timestamp'
   is_nullable: 1
 
+=head2 display_order
+
+  data_type: 'integer'
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -145,6 +150,8 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 1 },
   "subregions_valid_after",
   { data_type => "timestamp", is_nullable => 1 },
+  "display_order",
+  { data_type => "integer", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -302,8 +309,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-12-15 14:24:21
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:elYr5wa/EG1//7KFe0G7FA
+# Created by DBIx::Class::Schema::Loader v0.07043 @ 2016-07-12 21:32:49
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:6dwUrEipLwn32VUJv3FI7A
 
 __PACKAGE__->has_many(
   "subregions",

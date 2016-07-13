@@ -205,7 +205,7 @@ sub indicador_tabela_rot_regiao : Local : Args(1) {
         {
             columns      => [qw/name id/],
             result_class => 'DBIx::Class::ResultClass::HashRefInflator',
-            order_by     => [ { -desc => 'depth_level' }, 'upper_region', 'name' ]
+            order_by     => [ 'display_order', 'name' ]
         }
     )->all;
 
@@ -256,7 +256,7 @@ sub indicador_tabela_rot_txt : Local : Args(1) {
         {
             columns      => [qw/name id/],
             result_class => 'DBIx::Class::ResultClass::HashRefInflator',
-            order_by     => [ { -desc => 'depth_level' }, 'upper_region', 'name' ]
+            order_by     => [ 'display_order', 'name' ]
         }
     )->all;
 
