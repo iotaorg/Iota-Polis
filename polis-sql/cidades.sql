@@ -77,3 +77,48 @@ ALTER TABLE region
       REFERENCES region (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION;
 
+create table foo (name varchar, lvl int);
+insert into foo (name, lvl) values ( 'Parque Nacional da Serra da Bocaina (PNSB)' , '1');
+insert into foo (name, lvl) values ( 'Parque Estadual da Serra do Mar (PESM)' , '2');
+insert into foo (name, lvl) values ( 'Parque Estadual de Ilhabela (PEIB)' , '3');
+insert into foo (name, lvl) values ( 'Parque Estadual da Ilha Anchieta (PEIA)' , '4');
+insert into foo (name, lvl) values ( 'Parque Estadual Marinho da Laje de Santos (PEMLS)' , '5');
+insert into foo (name, lvl) values ( 'Parque Estadual Restinga de Bertioga (PERB)' , '6');
+insert into foo (name, lvl) values ( 'Parque Estadual Xixová-Japuí' , '7');
+insert into foo (name, lvl) values ( 'APA Marinha Litoral Norte' , '8');
+insert into foo (name, lvl) values ( 'APA Marinha do Litoral Centro' , '9');
+insert into foo (name, lvl) values ( 'APA Cananeia-Iguape-Peruíbe' , '10');
+insert into foo (name, lvl) values ( 'APA Santos-Continente' , '11');
+insert into foo (name, lvl) values ( 'APA Municipal da Serra do Guararu' , '12');
+insert into foo (name, lvl) values ( 'APA Municipal da Baleia-Sahy' , '13');
+insert into foo (name, lvl) values ( 'ARIE Ilha do Ameixal' , '14');
+insert into foo (name, lvl) values ( 'ESEC de Tupinambás' , '15');
+insert into foo (name, lvl) values ( 'ESEC dos Tupiniquins' , '16');
+insert into foo (name, lvl) values ( 'Estação Ecológica Jureia-Itatins (EEJI)' , '17');
+insert into foo (name, lvl) values ( 'ARIE São Sebastião (Setor Boiçucanga)' , '18');
+insert into foo (name, lvl) values ( 'ARIE Ilhas Queimada Grande e Queimada Pequena' , '19');
+insert into foo (name, lvl) values ( 'Parque Municipal Piaçabuçu' , '20');
+insert into foo (name, lvl) values ( 'Parque São Sebastião' , '21');
+insert into foo (name, lvl) values ( 'Parque Natural Municipal do Juqueriquerê' , '22');
+insert into foo (name, lvl) values ( 'Parque Ecológico do Caminho do Mar' , '23');
+insert into foo (name, lvl) values ( 'Parque Ecológico do Perequê' , '24');
+insert into foo (name, lvl) values ( 'Parque Ecológico e Turístico de Caraguatatuba' , '25');
+insert into foo (name, lvl) values ( 'Parque Ecológico Itutinga-Pilões' , '26');
+insert into foo (name, lvl) values ( 'Parque Ecológico Municipal Cotia Pará' , '27');
+insert into foo (name, lvl) values ( 'Parque Turístico Ecológico ''A Tribuna''' , '28');
+insert into foo (name, lvl) values ( 'Poço das Antas' , '29');
+insert into foo (name, lvl) values ( 'RPPN Carbocloro S/A' , '30');
+insert into foo (name, lvl) values ( 'RPPN Carbocloro S/A - 2' , '31');
+insert into foo (name, lvl) values ( 'RPPN Costa Blanca' , '32');
+insert into foo (name, lvl) values ( 'RPPN Ecofuturo' , '33');
+insert into foo (name, lvl) values ( 'RPPN Hércules Florence I' , '34');
+insert into foo (name, lvl) values ( 'RPPN Hércules Florence II' , '35');
+insert into foo (name, lvl) values ( 'RPPN Marina do Conde' , '36');
+insert into foo (name, lvl) values ( 'RPPN Morro do Curussu Mirim' , '37');
+insert into foo (name, lvl) values ( 'RPPN Reserva Rizzieri' , '38');
+insert into foo (name, lvl) values ( 'RPPN Sítio do Jacú' , '39');
+insert into foo (name, lvl) values ( 'RPPN Tijucopava' , '40');
+insert into foo (name, lvl) values ( 'RPPN Toque Toque Pequeno' , '41');
+
+insert into region (name, name_url, display_order, city_id, depth_level , created_by ) select name, replace( lower( unaccent(name)), ' ', '-'), lvl, 1 , 1, 1 from foo;
+drop table foo;

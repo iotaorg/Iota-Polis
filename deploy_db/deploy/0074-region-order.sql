@@ -9,19 +9,19 @@ update region set display_order = id;
 
 update region set display_order = id;
 
-update region set display_order=01 where name ilike '%Ubatuba%';
-update region set display_order=02 where name ilike '%Caraguatatuba%';
-update region set display_order=03 where name ilike '%Ilhabela%';
-update region set display_order=04 where name ilike '%São% Sebastião';
-update region set display_order=05 where name ilike '%Bertioga%';
-update region set display_order=06 where name ilike '%Guarujá%';
-update region set display_order=07 where name ilike '%Santos%';
-update region set display_order=08 where name ilike '%Cubatão%';
-update region set display_order=09 where name ilike '%São% Vicente';
-update region set display_order=10 where name ilike '%Praia% Grande';
-update region set display_order=11 where name ilike '%Mongaguá%';
-update region set display_order=12 where name ilike '%Itanhaém%';
-update region set display_order=13 where name ilike '%Peruíbe%';
+update region set display_order=20-01 where name ilike '%Ubatuba%';
+update region set display_order=20-02 where name ilike '%Caraguatatuba%';
+update region set display_order=20-03 where name ilike '%Ilhabela%';
+update region set display_order=20-04 where name ilike '%São% Sebastião';
+update region set display_order=20-05 where name ilike '%Bertioga%';
+update region set display_order=20-06 where name ilike '%Guarujá%';
+update region set display_order=20-07 where name ilike '%Santos%';
+update region set display_order=20-08 where name ilike '%Cubatão%';
+update region set display_order=20-09 where name ilike '%São% Vicente';
+update region set display_order=20-10 where name ilike '%Praia% Grande';
+update region set display_order=20-11 where name ilike '%Mongaguá%';
+update region set display_order=20-12 where name ilike '%Itanhaém%';
+update region set display_order=20-13 where name ilike '%Peruíbe%';
 
 update region set display_order=10000000 where name ilike '%Litoral Sustentável%';
 

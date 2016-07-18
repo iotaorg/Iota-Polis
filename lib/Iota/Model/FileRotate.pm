@@ -196,8 +196,12 @@ sub generate_variables {
     foreach my $var ( @{ $opt{variables} } ) {
 
         my ( $line1, $line2 ) = split /\n/, $var;
-        die 'Faltando segunda linha em "' . $var . '"' unless $line2;
-        $line2 = unac_string $line2;
+        # se tem linha 2, usar como apelido apenas a linha 2, se nao, usa o nome inteiro
+        if ($line2){
+            $line2 = unac_string $line2;
+        }else{
+            $line2 = unac_string $line1;
+        }
         my $cognomen = uc $line2;
 
         $cognomen =~ s/[^A-Z0-9 ]//g;
