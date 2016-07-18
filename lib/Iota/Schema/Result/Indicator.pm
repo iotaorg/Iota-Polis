@@ -210,6 +210,24 @@ __PACKAGE__->table("indicator");
   default_value: false
   is_nullable: 0
 
+=head2 append_on_result
+
+  data_type: 'text'
+  is_nullable: 1
+  original: {data_type => "varchar"}
+
+=head2 prepend_on_result
+
+  data_type: 'text'
+  is_nullable: 1
+  original: {data_type => "varchar"}
+
+=head2 graph_type
+
+  data_type: 'text'
+  is_nullable: 1
+  original: {data_type => "varchar"}
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -305,6 +323,24 @@ __PACKAGE__->add_columns(
   },
   "is_fake",
   { data_type => "boolean", default_value => \"false", is_nullable => 0 },
+  "append_on_result",
+  {
+    data_type   => "text",
+    is_nullable => 1,
+    original    => { data_type => "varchar" },
+  },
+  "prepend_on_result",
+  {
+    data_type   => "text",
+    is_nullable => 1,
+    original    => { data_type => "varchar" },
+  },
+  "graph_type",
+  {
+    data_type   => "text",
+    is_nullable => 1,
+    original    => { data_type => "varchar" },
+  },
 );
 
 =head1 PRIMARY KEY
@@ -583,8 +619,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-12-15 14:24:21
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:pn4V1DqcukOxV3NUrHRzEA
+# Created by DBIx::Class::Schema::Loader v0.07043 @ 2016-07-18 11:43:37
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Gw0qsOGeGZAgaLtjb2j7cQ
 
 __PACKAGE__->belongs_to(
     "owner",
