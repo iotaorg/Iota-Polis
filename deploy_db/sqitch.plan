@@ -39,3 +39,4 @@ end-users-mail-queue [end-users-by-network] 2014-07-08T14:02:35Z cron <renato.cr
 0072-unnac [0071-colors] 2016-06-29T21:24:52Z renatopc,,, <renato@oodcronpc> # cfunction
 0073-new-perido [0072-unnac] 2016-07-07T21:11:10Z renatopc,,, <renato@oodcronpc> # century
 0074-region-order [0073-new-perido] 2016-07-13T00:29:41Z renatopc,,, <renato@oodcronpc> # region-order
+0075-indicadores-campos [0074-region-order] 2016-07-18T14:41:46Z renatopc,,, <renato@oodcronpc> # campos faltando no indicadores
