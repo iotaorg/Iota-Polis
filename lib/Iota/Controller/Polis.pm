@@ -211,7 +211,15 @@ sub indicador_tabela_rot_regiao : Local : Args(1) {
 
     my @lines = sort { $a->{k} cmp $b->{k} } map { { k => $_, v => &_limpa_ano($_) } } keys %lines;
 
-    $self->status_ok( $c, entity => { data => $rot, headers => \@headers, lines => \@lines } );
+    $self->status_ok(
+        $c,
+        entity => {
+            data      => $rot,
+            headers   => \@headers,
+            lines     => \@lines,
+            indicator => { map { $_ => $indicador->$_ } qw/graph_type prepend_on_result append_on_result name formula formula_human/  }
+        }
+    );
 }
 
 sub indicador_tabela_rot_txt : Local : Args(1) {
