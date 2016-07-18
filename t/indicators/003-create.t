@@ -94,6 +94,7 @@ eval {
 
             my $indicator_res = eval { decode_json( $res->content ) };
             is( $indicator_res->{visibility_level}, 'restrict', 'visibility_level ok' );
+
             is( $indicator_res->{graph_type}, 'bars', 'graph_type ok' );
             is( $indicator_res->{append_on_result}, '²', 'append_on_result ok' );
 

@@ -172,6 +172,10 @@ sub indicator_GET {
               visibility_level
               visibility_user_id
 
+              append_on_result
+              prepend_on_result
+              graph_type
+
               featured_in_home
 
               period
@@ -453,6 +457,10 @@ sub list_GET {
                   goal_source tags goal_operator chart_name goal_explanation sort_direction name_url
                   variety_name indicator_type summarization_method all_variations_variables_are_required
                   dynamic_variations
+
+                  append_on_result
+                  prepend_on_result
+                  graph_type
 
                   visibility_level
                   visibility_user_id
