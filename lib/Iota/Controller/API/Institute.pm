@@ -71,6 +71,10 @@ sub institute_GET {
                   created_at
                   created_by
 
+                  append_on_result
+                  prepend_on_result
+                  graph_type
+
                   institute_id domain_name
                   /
             )
@@ -177,6 +181,10 @@ sub list_GET {
                   can_use_custom_css
                   can_use_custom_pages
                   can_use_regions
+
+                  append_on_result
+                  prepend_on_result
+                  graph_type
 
                   created_at
                   created_by

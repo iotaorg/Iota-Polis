@@ -138,6 +138,10 @@ sub verifiers_specs {
                 visibility_users_id    => { required => 0, type => 'Str' },
                 visibility_networks_id => { required => 0, type => 'Str' },
 
+                append_on_result  => { required => 0, type => 'Str' },
+                prepend_on_result => { required => 0, type => 'Str' },
+                graph_type        => { required => 0, type => 'Str' },
+
             },
         ),
 
@@ -201,6 +205,10 @@ sub verifiers_specs {
                 visibility_country_id  => { required => 0, type => 'Int' },
                 visibility_users_id    => { required => 0, type => 'Str' },
                 visibility_networks_id => { required => 0, type => 'Str' },
+
+                append_on_result  => { required => 0, type => 'Str' },
+                prepend_on_result => { required => 0, type => 'Str' },
+                graph_type        => { required => 0, type => 'Str' },
 
             },
         ),
@@ -334,7 +342,7 @@ sub action_specs {
             do { $values{$_} = undef unless exists $values{$_} }
               for qw/
               goal goal_source goal_explanation goal_operator
-              tags source observations
+              tags source observations append_on_result prepend_on_result graph_type
               /;
 
             my $visibility_users_id = delete $values{visibility_users_id};

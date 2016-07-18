@@ -58,6 +58,11 @@ eval {
                     'indicator.create.visibility_level'    => 'restrict',
                     'indicator.create.visibility_users_id' => '4',
 
+                    'indicator.create.append_on_result' => '²',
+                    'indicator.create.prepend_on_result' => 'R$',
+                    'indicator.create.graph_type' => 'bars',
+
+
                 ]
             );
 
@@ -89,6 +94,8 @@ eval {
 
             my $indicator_res = eval { decode_json( $res->content ) };
             is( $indicator_res->{visibility_level}, 'restrict', 'visibility_level ok' );
+            is( $indicator_res->{graph_type}, 'bars', 'graph_type ok' );
+            is( $indicator_res->{append_on_result}, '²', 'append_on_result ok' );
 
             is_deeply( $indicator_res->{restrict_to_users}, [4], 'restrict_to_users ok' );
             is( $indicator_res->{name}, 'Divisão Modal', 'name ok' );
