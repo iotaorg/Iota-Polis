@@ -178,6 +178,8 @@ sub indicador_tabela_rot_regiao : Local : Args(1) {
     )->next;
     die "not found\n" unless $indicador;
 
+    my $ucs = defined $c->req->params->{template_name} && $c->req->params->{template_name} eq 'layout2';
+
     my $rs = $c->model('DB::IndicatorValue')->search(
         { 'indicator_id' => $indicador_id, },
         {
@@ -195,8 +197,9 @@ sub indicador_tabela_rot_regiao : Local : Args(1) {
 
     my @headers = map { { k => $_->{id}, v => $_->{name} } } $c->model('DB::Region')->search(
         {
+
             id => {
-                in => [
+                ($ucs ? 'not in' : 'in' ) => [
                     351,     35063,   3537602, 3522109, 3531100, 3541000, 3551009, 3548500,
                     3513504, 3518701, 3506359, 35054,   3550704, 3520400, 3510500, 3555406,
                 ]
