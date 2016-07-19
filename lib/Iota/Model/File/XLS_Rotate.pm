@@ -26,16 +26,17 @@ sub parse {
     my $header_found;
     my $total_vars;
     my $period = 'century';
-    my $type = 'str';
+    my $type   = 'str';
     my $start_var_evalued;
     while ( my $sheet = $xls->sheet() ) {
-
+        my $aba = eval { $sheet->name } || 'aba desconhecida';
         my $header_map = {};
         my $variables  = {};
         $header_found = 0;
 
         my $row_num = 0;
         while ( my $row = $sheet->row ) {
+
             $row_num++;
 
             my @data = @$row;
@@ -56,9 +57,9 @@ sub parse {
                 }
 
                 if ($header_found) {
-                    die "Faltando coluna fonte\n"    unless exists $header_map->{source};
+                    die "Faltando coluna fonte\n"     unless exists $header_map->{source};
                     die "Faltando coluna data\n"      unless exists $header_map->{date};
-                    die "Faltando coluna Região\n" unless exists $header_map->{region_id};
+                    die "Faltando coluna Região\n"   unless exists $header_map->{region_id};
                     die "Faltando coluna start_var\n" unless exists $header_map->{start_var};
 
                     for my $col ( $header_map->{start_var} + 1 .. ( scalar @data - 1 ) ) {
@@ -71,8 +72,8 @@ sub parse {
                         $cell =~ s/^\s*//o;
                         $cell =~ s/  */ /go;
 
-                        $variables->{$cell} = $col;
-                        $total_vars->{$cell}=1;
+                        $variables->{$cell}  = $col;
+                        $total_vars->{$cell} = 1;
                     }
 
                 }
@@ -97,7 +98,6 @@ sub parse {
                     $registro->{$header_name} = $value;
                 }
 
-
                 if (   exists $registro->{region_id}
                     && exists $registro->{date}
                     && $registro->{source} ) {
@@ -116,15 +116,17 @@ sub parse {
 
                     push @rows, $registro;
 
-                    if (!$start_var_evalued && $registro->{start_var} =~ /^(num|str|int)\/(yearly|decade|century)$/i ) {
-                        $type = lc $1;
-                        $period = lc $2;
+                    if ( !$start_var_evalued && exists  $registro->{start_var} && $registro->{start_var} =~ /^(num|str|int)\/(yearly|decade|century)$/i )
+                    {
+                        $type              = lc $1;
+                        $period            = lc $2;
                         $start_var_evalued = 1;
                     }
 
                 }
                 else {
-                    push @{$ignored}, "'${\$sheet->name}' Linha $row_num";
+
+                    push @{$ignored}, "'$aba' linha $row_num";
                 }
 
             }
@@ -134,12 +136,11 @@ sub parse {
     die "cabecalho nao encontrado" unless \@rows;
 
     return {
-        rows         => \@rows,
-        ignored      => $ignored,
-        variables => [keys %$total_vars],
-        period => $period,
-        type => $type
-
+        rows      => \@rows,
+        ignored   => $ignored,
+        variables => [ keys %$total_vars ],
+        period    => $period,
+        type      => $type
 
     };
 }

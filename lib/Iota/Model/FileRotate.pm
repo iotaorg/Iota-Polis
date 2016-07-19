@@ -46,8 +46,8 @@ sub process {
         variables => $parse->{variables},
         user_id   => $param{user_id},
         rs        => $schema->resultset('Variable'),
-        period => $parse->{period},
-        type => $parse->{type},
+        period    => $parse->{period},
+        type      => $parse->{type},
 
     );
 
@@ -142,6 +142,9 @@ sub process {
 
         }
     );
+
+    $status .= "; Registros ignorados: " . join ", ", @{ $parse->{ignored} } if $parse->{ignored};
+
     $file->update( { status_text => $status } );
 
     return {
@@ -196,10 +199,12 @@ sub generate_variables {
     foreach my $var ( @{ $opt{variables} } ) {
 
         my ( $line1, $line2 ) = split /\n/, $var;
+
         # se tem linha 2, usar como apelido apenas a linha 2, se nao, usa o nome inteiro
-        if ($line2){
+        if ($line2) {
             $line2 = unac_string $line2;
-        }else{
+        }
+        else {
             $line2 = unac_string $line1;
         }
         my $cognomen = uc $line2;
