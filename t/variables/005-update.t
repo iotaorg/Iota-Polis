@@ -68,8 +68,7 @@ eval {
 
             is( $updated_var->type,   'int',    'updated ok' );
             is( $updated_var->name,   'BarFoo', 'name ok' );
-            is( $updated_var->period, 'weekly', 'source ok' );
-            is( $updated_var->source, 'Lulu',   'period ok' );
+            is( $updated_var->source, 'Lulu',   'source ok' );
 
             die 'rollback';
         }
