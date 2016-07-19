@@ -239,7 +239,7 @@ sub indicador_tabela_rot_txt : Local : Args(1) {
     my $rs = $c->model('DB::IndicatorValue')->search(
         {
             'indicator_id' => $indicador_id,
-            valid_from     => '2000-01-01',    # por enquanto só vamos usar ano 2000 para essas variaveis
+          #  valid_from     => '2000-01-01',    # por enquanto só vamos usar ano 2000 para essas variaveis
         },
         {
             join         => [],
@@ -254,7 +254,7 @@ sub indicador_tabela_rot_txt : Local : Args(1) {
             $rot->{ $r->{region_id} }{$variable_id} = $value;
         }
     }
-
+use DDP; p $rot;
     my @lines = map { { k => $_->{id}, v => $_->{name} } } $c->model('DB::Region')->search(
         {
             id => {
