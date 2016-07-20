@@ -150,7 +150,7 @@ sub indicadores_acao : Local : Args(1) {
         {
             join    => ['indicator_network_visibilities'],
             columns => [
-                qw /id name name_url variable_type /,
+                qw /id name name_url variable_type graph_type/,
                 { 'reservado'         => \'goal_explanation as reservado' },
                 { 'descricao_formula' => \'explanation as descricao_formula' },
                 { 'nossa_leitura'     => \'observations as nossa_leitura' },
@@ -220,7 +220,7 @@ sub indicador_tabela_rot_regiao : Local : Args(1) {
             data      => $rot,
             headers   => \@headers,
             lines     => \@lines,
-            indicator => { map { $_ => $indicador->$_ } qw/graph_type prepend_on_result append_on_result name formula formula_human/  }
+            indicator => { map { $_ => $indicador->$_ } qw/prepend_on_result append_on_result name formula formula_human/  }
         }
     );
 }
@@ -254,7 +254,7 @@ sub indicador_tabela_rot_txt : Local : Args(1) {
             $rot->{ $r->{region_id} }{$variable_id} = $value;
         }
     }
-use DDP; p $rot;
+
     my @lines = map { { k => $_->{id}, v => $_->{name} } } $c->model('DB::Region')->search(
         {
             id => {
