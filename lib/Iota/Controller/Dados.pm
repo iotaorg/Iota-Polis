@@ -16,7 +16,7 @@ sub ymd2dmy {
     return '';
 }
 
-sub download_indicators : Chained('/') PathPart('download-indicators') Args(0) ActionClass('REST') {
+sub download_indicators : Chained('/') PathPart('api/download-indicators') Args(0) ActionClass('REST') {
 
 }
 
@@ -27,18 +27,6 @@ sub download_indicators_GET {
 
     my $data_rs =
       $c->model('DB::DownloadData')->search( {}, { result_class => 'DBIx::Class::ResultClass::HashRefInflator' } );
-
-    if ( exists $params->{region_id} ) {
-        my @ids = split /,/, $params->{region_id};
-
-        $self->status_bad_request( $c, message => 'invalid region_id' ), $c->detach
-          unless $self->int_validation(@ids);
-
-        $data_rs = $data_rs->search( { region_id => { 'in' => \@ids } } );
-    }
-    else {
-        $data_rs = $data_rs->search( { region_id => undef } );
-    }
 
     if ( exists $params->{user_id} ) {
         my @ids = split /,/, $params->{user_id};

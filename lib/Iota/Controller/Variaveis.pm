@@ -28,7 +28,7 @@ sub ymd2dmy {
 }
 
 
-sub download_variables : Chained('/') PathPart('download-variables') Args(0) ActionClass('REST') {
+sub download_variables : Chained('/') PathPart('api/download-variables') Args(0) ActionClass('REST') {
 
 }
 
