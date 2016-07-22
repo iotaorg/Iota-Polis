@@ -271,10 +271,13 @@ sub action_specs {
 
             if ( $formula->_variable_count ) {
                 my $anyvar = $var->indicator_variables->next->variable;
+
+                my $vt = $anyvar->type;
+                $vt = 'str' if $values{formula} =~ /concatenar/i;
                 $var->update(
                     {
                         period        => $anyvar->period,
-                        variable_type => $anyvar->type,
+                        variable_type => $vt,
                     }
                 ) if ( !$var->period || $var->period ne $anyvar->period );
             }
@@ -359,6 +362,7 @@ sub action_specs {
 
             my $var             = $self->find( delete $values{id} );
             my $formula_changed = 0;
+
             if (   exists $values{formula}
                 && $values{formula}
                 && $values{formula} ne $var->formula ) {
@@ -378,6 +382,8 @@ sub action_specs {
                     $values{period}        = $anyvar->period;
                     $values{variable_type} = $anyvar->type;
                 }
+                $values{variable_type} = 'str' if $values{formula} =~ /concatenar/i;
+
             }
 
             $values{visibility_user_id} = undef
