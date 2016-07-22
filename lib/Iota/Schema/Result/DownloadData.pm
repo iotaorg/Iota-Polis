@@ -70,42 +70,17 @@ __PACKAGE__->table("download_data");
   data_type: 'text'
   is_nullable: 1
 
+=head2 formula_explanation
+
+  data_type: 'text'
+  is_nullable: 1
+
 =head2 formula
 
   data_type: 'text'
   is_nullable: 1
 
-=head2 goal
-
-  data_type: 'numeric'
-  is_nullable: 1
-
-=head2 goal_explanation
-
-  data_type: 'text'
-  is_nullable: 1
-
-=head2 goal_source
-
-  data_type: 'text'
-  is_nullable: 1
-
-=head2 goal_operator
-
-  data_type: 'text'
-  is_nullable: 1
-
-=head2 explanation
-
-  data_type: 'text'
-  is_nullable: 1
-
-=head2 tags
-
-  data_type: 'text'
-  is_nullable: 1
-
-=head2 observations
+=head2 nossa_leitura
 
   data_type: 'text'
   is_nullable: 1
@@ -113,16 +88,6 @@ __PACKAGE__->table("download_data");
 =head2 period
 
   data_type: 'text'
-  is_nullable: 1
-
-=head2 variation_name
-
-  data_type: 'text'
-  is_nullable: 1
-
-=head2 variation_order
-
-  data_type: 'integer'
   is_nullable: 1
 
 =head2 valid_from
@@ -136,16 +101,6 @@ __PACKAGE__->table("download_data");
   is_nullable: 1
 
 =head2 user_goal
-
-  data_type: 'text'
-  is_nullable: 1
-
-=head2 justification_of_missing_field
-
-  data_type: 'text'
-  is_nullable: 1
-
-=head2 technical_information
 
   data_type: 'text'
   is_nullable: 1
@@ -201,37 +156,19 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 1 },
   "formula_human",
   { data_type => "text", is_nullable => 1 },
+  "formula_explanation",
+  { data_type => "text", is_nullable => 1 },
   "formula",
   { data_type => "text", is_nullable => 1 },
-  "goal",
-  { data_type => "numeric", is_nullable => 1 },
-  "goal_explanation",
-  { data_type => "text", is_nullable => 1 },
-  "goal_source",
-  { data_type => "text", is_nullable => 1 },
-  "goal_operator",
-  { data_type => "text", is_nullable => 1 },
-  "explanation",
-  { data_type => "text", is_nullable => 1 },
-  "tags",
-  { data_type => "text", is_nullable => 1 },
-  "observations",
+  "nossa_leitura",
   { data_type => "text", is_nullable => 1 },
   "period",
   { data_type => "text", is_nullable => 1 },
-  "variation_name",
-  { data_type => "text", is_nullable => 1 },
-  "variation_order",
-  { data_type => "integer", is_nullable => 1 },
   "valid_from",
   { data_type => "date", is_nullable => 1 },
   "value",
   { data_type => "text", is_nullable => 1 },
   "user_goal",
-  { data_type => "text", is_nullable => 1 },
-  "justification_of_missing_field",
-  { data_type => "text", is_nullable => 1 },
-  "technical_information",
   { data_type => "text", is_nullable => 1 },
   "institute_id",
   { data_type => "integer", is_nullable => 1 },
@@ -254,8 +191,8 @@ __PACKAGE__->add_columns(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-12-15 14:24:22
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:VzQW7fsfaPw2RxFpXz4vVg
+# Created by DBIx::Class::Schema::Loader v0.07043 @ 2016-07-21 20:11:49
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:/YDojsVjBhceqoCq3yhHwA
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;

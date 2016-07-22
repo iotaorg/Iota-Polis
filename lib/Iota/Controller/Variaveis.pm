@@ -27,7 +27,6 @@ sub ymd2dmy {
     return '';
 }
 
-
 sub download_variables : Chained('/') PathPart('api/download-variables') Args(0) ActionClass('REST') {
 
 }
@@ -37,21 +36,9 @@ sub download_variables_GET {
     my $params = $c->req->params;
     my @objs;
 
-    my $data_rs = $c->model(
-        exists $params->{region_id}
-        ? 'DB::ViewDownloadVariablesRegion'
-        : 'DB::DownloadVariable'
-      )->search( {   },
-        { result_class => 'DBIx::Class::ResultClass::HashRefInflator' } );
-
-    if ( exists $params->{region_id} ) {
-        my @ids = split /,/, $params->{region_id};
-
-        $self->status_bad_request( $c, message => 'invalid region_id' ), $c->detach
-          unless Iota::Controller::Dados::int_validation( $self, @ids );
-
-        $data_rs = $data_rs->search( { region_id => { 'in' => \@ids } } );
-    }
+    my $data_rs =
+      $c->model( 'DB::ViewDownloadVariablesRegion' )
+      ->search( {}, { result_class => 'DBIx::Class::ResultClass::HashRefInflator' } );
 
     if ( exists $params->{user_id} ) {
         my @ids = split /,/, $params->{user_id};
@@ -78,6 +65,26 @@ sub download_variables_GET {
           unless Iota::Controller::Dados::int_validation( $self, @ids );
 
         $data_rs = $data_rs->search( { variable_id => { 'in' => \@ids } } );
+    }
+
+    if ( exists $params->{indicator_id} ) {
+        my @ids = split /,/, $params->{indicator_id};
+
+        $self->status_bad_request( $c, message => 'invalid indicator_id' ), $c->detach
+          unless Iota::Controller::Dados::int_validation( $self, @ids );
+
+        $data_rs = $data_rs->search(
+            {
+                variable_id => {
+                    'in' => [
+                        map { $_->{variable_id} } $c->model('DB::IndicatorVariable')->search(
+                            { indicator_id => { 'in' => \@ids } },
+                            { result_class => 'DBIx::Class::ResultClass::HashRefInflator' }
+                        )
+                    ]->all
+                }
+            }
+        );
     }
 
     if ( exists $params->{valid_from} ) {
