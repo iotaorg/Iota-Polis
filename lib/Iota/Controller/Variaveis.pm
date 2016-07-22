@@ -80,8 +80,8 @@ sub download_variables_GET {
                         map { $_->{variable_id} } $c->model('DB::IndicatorVariable')->search(
                             { indicator_id => { 'in' => \@ids } },
                             { result_class => 'DBIx::Class::ResultClass::HashRefInflator' }
-                        )
-                    ]->all
+                        )->all
+                    ]
                 }
             }
         );
