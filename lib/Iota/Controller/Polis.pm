@@ -199,7 +199,7 @@ sub indicador_tabela_rot_regiao : Local : Args(1) {
         {
 
             id => {
-                ($ucs ? 'not in' : 'in' ) => [
+                ( $ucs ? 'not in' : 'in' ) => [
                     351,     35063,   3537602, 3522109, 3531100, 3541000, 3551009, 3548500,
                     3513504, 3518701, 3506359, 35054,   3550704, 3520400, 3510500, 3555406,
                 ]
@@ -217,10 +217,11 @@ sub indicador_tabela_rot_regiao : Local : Args(1) {
     $self->status_ok(
         $c,
         entity => {
-            data      => $rot,
-            headers   => \@headers,
-            lines     => \@lines,
-            indicator => { map { $_ => $indicador->$_ } qw/prepend_on_result append_on_result name formula formula_human/  }
+            data    => $rot,
+            headers => \@headers,
+            lines   => \@lines,
+            indicator =>
+              { map { $_ => $indicador->$_ } qw/prepend_on_result append_on_result name formula formula_human/ }
         }
     );
 }
@@ -239,7 +240,8 @@ sub indicador_tabela_rot_txt : Local : Args(1) {
     my $rs = $c->model('DB::IndicatorValue')->search(
         {
             'indicator_id' => $indicador_id,
-          #  valid_from     => '2000-01-01',    # por enquanto só vamos usar ano 2000 para essas variaveis
+
+            #  valid_from     => '2000-01-01',    # por enquanto só vamos usar ano 2000 para essas variaveis
         },
         {
             join         => [],
@@ -274,7 +276,10 @@ sub indicador_tabela_rot_txt : Local : Args(1) {
     my ( $formula, @variables_id ) = ( $indicador->formula );
     push @variables_id, $1 while ( $formula =~ /\$(\d+)\b/go );
 
-    my @headers =
+    my $n = 0;
+    my %in_order = map { $_ => $n++ } @variables_id;
+
+    my @headers = sort { $in_order{ $a->{k} } <=> $in_order{ $b->{k} } }
       map { { k => $_->{id}, v => $_->{cognomen}, name => $_->{name}, c => $_->{colors} } }
       $c->model('DB::Variable')->search(
         { id => { in => \@variables_id } },
