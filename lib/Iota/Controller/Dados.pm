@@ -5,7 +5,7 @@ __PACKAGE__->config( default => 'application/json' );
 
 use utf8;
 use JSON::XS;
-use Encode qw(encode);
+use Encode qw(encode decode);
 
 use XML::Simple qw(:strict);
 use DateTime::Format::Pg;
