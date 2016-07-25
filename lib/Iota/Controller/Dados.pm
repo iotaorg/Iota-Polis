@@ -147,7 +147,7 @@ sub check_for_download {
             push @lines, \@headers;
 
             foreach my $line ( @{$data} ) {
-                $line->{values_used} = encode_json($line->{values_used}) if exists $line->{values_used} && ref $line->{values_used};
+                $line->{values_used} = encode ('UTF-8', encode_json($line->{values_used})) if exists $line->{values_used} && ref $line->{values_used};
                 my @item = ();
                 foreach my $header (@headers) {
                     push @item, $line->{$header};
