@@ -14,6 +14,7 @@ use utf8;
 use JSON::XS;
 
 use Text::CSV_XS;
+use Spreadsheet::WriteExcel;
 
 sub _loc_str {
     my ( $self, $c, $str ) = @_;
@@ -143,8 +144,8 @@ sub _download_and_detach {
     }
     $c->response->headers->header(
             'content-disposition' => "attachment;filename="
-          . "variaveis-exemplo-"
-          . ( $custom ? 'dos-indicadores' : 'completa' )
+          . "download-"
+          . ( $custom )
           . ".$1" );
 
     open( my $fh, '<:raw', $path );
