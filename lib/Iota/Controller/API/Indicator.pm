@@ -175,6 +175,7 @@ sub indicator_GET {
               append_on_result
               prepend_on_result
               graph_type
+              display_order
 
               featured_in_home
 

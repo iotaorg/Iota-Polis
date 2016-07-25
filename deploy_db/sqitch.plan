@@ -41,3 +41,4 @@ end-users-mail-queue [end-users-by-network] 2014-07-08T14:02:35Z cron <renato.cr
 0074-region-order [0073-new-perido] 2016-07-13T00:29:41Z renatopc,,, <renato@oodcronpc> # region-order
 0075-indicadores-campos [0074-region-order] 2016-07-18T14:41:46Z renatopc,,, <renato@oodcronpc> # campos faltando no indicadores
 0076-new-download [0075-indicadores-campos] 2016-07-21T23:11:33Z renatopc,,, <renato@oodcronpc> # view
+0077-indicator_order [0076-new-download] 2016-07-25T18:24:14Z renatopc,,, <renato@oodcronpc> # indicator order

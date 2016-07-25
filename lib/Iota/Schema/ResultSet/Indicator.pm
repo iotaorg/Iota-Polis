@@ -141,6 +141,7 @@ sub verifiers_specs {
                 append_on_result  => { required => 0, type => 'Str' },
                 prepend_on_result => { required => 0, type => 'Str' },
                 graph_type        => { required => 0, type => 'Str' },
+                display_order        => { required => 0, type => 'int' },
 
             },
         ),
@@ -209,6 +210,8 @@ sub verifiers_specs {
                 append_on_result  => { required => 0, type => 'Str' },
                 prepend_on_result => { required => 0, type => 'Str' },
                 graph_type        => { required => 0, type => 'Str' },
+                display_order        => { required => 0, type => 'int' },
+
 
             },
         ),

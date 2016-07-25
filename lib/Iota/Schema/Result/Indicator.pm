@@ -228,6 +228,12 @@ __PACKAGE__->table("indicator");
   is_nullable: 1
   original: {data_type => "varchar"}
 
+=head2 display_order
+
+  data_type: 'integer'
+  default_value: 0
+  is_nullable: 0
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -341,6 +347,8 @@ __PACKAGE__->add_columns(
     is_nullable => 1,
     original    => { data_type => "varchar" },
   },
+  "display_order",
+  { data_type => "integer", default_value => 0, is_nullable => 0 },
 );
 
 =head1 PRIMARY KEY
@@ -619,8 +627,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07043 @ 2016-07-18 11:43:37
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Gw0qsOGeGZAgaLtjb2j7cQ
+# Created by DBIx::Class::Schema::Loader v0.07043 @ 2016-07-25 15:24:41
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:mdCaVQ42MfV8/0P2kvao7g
 
 __PACKAGE__->belongs_to(
     "owner",

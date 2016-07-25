@@ -150,13 +150,13 @@ sub indicadores_acao : Local : Args(1) {
         {
             join    => ['indicator_network_visibilities'],
             columns => [
-                qw /id name name_url variable_type graph_type/,
+                qw /id name name_url variable_type graph_type display_order/,
                 { 'reservado'         => \'goal_explanation as reservado' },
                 { 'descricao_formula' => \'explanation as descricao_formula' },
                 { 'nossa_leitura'     => \'observations as nossa_leitura' },
             ],
             result_class => 'DBIx::Class::ResultClass::HashRefInflator',
-            order_by     => 'name'
+            order_by     => 'display_order'
         }
     )->all;
 
