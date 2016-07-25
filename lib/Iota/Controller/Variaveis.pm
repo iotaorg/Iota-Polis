@@ -37,7 +37,7 @@ sub download_variables_GET {
     my @objs;
 
     my $data_rs =
-      $c->model( 'DB::ViewDownloadVariablesRegion' )
+      $c->model('DB::ViewDownloadVariablesRegion')
       ->search( {}, { result_class => 'DBIx::Class::ResultClass::HashRefInflator' } );
 
     if ( exists $params->{user_id} ) {
@@ -67,20 +67,22 @@ sub download_variables_GET {
         $data_rs = $data_rs->search( { variable_id => { 'in' => \@ids } } );
     }
 
+    my $name = 'variaveis-';
     if ( exists $params->{indicator_id} ) {
         my @ids = split /,/, $params->{indicator_id};
 
         $self->status_bad_request( $c, message => 'invalid indicator_id' ), $c->detach
           unless Iota::Controller::Dados::int_validation( $self, @ids );
 
+        $name .= eval { $c->model('DB::Indicator')->find( $ids[0] )->name_url };
+
         $data_rs = $data_rs->search(
             {
                 variable_id => {
                     'in' => [
-                        map { $_->{variable_id} } $c->model('DB::IndicatorVariable')->search(
-                            { indicator_id => { 'in' => \@ids } },
-                            { result_class => 'DBIx::Class::ResultClass::HashRefInflator' }
-                        )->all
+                        map { $_->{variable_id} }
+                          $c->model('DB::IndicatorVariable')->search( { indicator_id => { 'in' => \@ids } },
+                            { result_class => 'DBIx::Class::ResultClass::HashRefInflator' } )->all
                     ]
                 }
             }
@@ -119,6 +121,43 @@ sub download_variables_GET {
     }
 
     $self->status_ok( $c, entity => { data => \@objs } );
+
+    $self->check_for_download( $c, $name );
+}
+
+sub check_for_download {
+    my ( $self, $c, $name ) = @_;
+
+    if ( exists $c->req->params->{download} && $c->req->params->{download} =~ /csv|xls/ && $c->stash->{rest}{data} ) {
+        my $data = $c->stash->{rest}{data};
+        my $format = $c->req->params->{download} =~ /csv/ ? 'csv' : 'xls';
+        $c->stash->{type} = $format;
+        my @lines = ();
+
+        if ( @{$data} ) {
+            my @headers = sort keys %{ $data->[0] };
+
+            push @lines, \@headers;
+
+            foreach my $line ( @{$data} ) {
+                my @item = ();
+                foreach my $header (@headers) {
+                    push @item, $line->{$header};
+                }
+                push @lines, \@item;
+            }
+
+        }
+
+        my $path = ( $c->config->{downloads}{tmp_dir} || '/tmp' ) . '/' . rand() . $format;
+
+        Iota::Controller::VariaveisExemplo::lines2file( $self, $c, $path, \@lines );
+
+        Iota::Controller::VariaveisExemplo::_download_and_detach( $self, $c, $path, $name );
+
+        unlink $path;
+    }
+
 }
 
 1;

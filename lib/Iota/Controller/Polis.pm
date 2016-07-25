@@ -224,7 +224,7 @@ sub indicador_tabela_rot_regiao : Local : Args(1) {
               { map { $_ => $indicador->$_ } qw/prepend_on_result append_on_result name formula formula_human/ }
         }
     );
-    $self->check_for_download($c, $indicador->name_url);
+    $self->check_for_download( $c, $indicador->name_url );
 }
 
 sub indicador_tabela_rot_txt : Local : Args(1) {
@@ -302,7 +302,7 @@ sub indicador_tabela_rot_txt : Local : Args(1) {
     $self->status_ok( $c,
         entity => { data => $rot, headers => \@headers, lines => \@lines, variable_colors => \%variable_colors } );
 
-    $self->check_for_download($c, $indicador->name_url);
+    $self->check_for_download( $c, $indicador->name_url );
 }
 
 sub check_for_download {
@@ -312,11 +312,11 @@ sub check_for_download {
         my $data    = $c->stash->{rest}{data};
         my @headers = @{ $c->stash->{rest}{headers} };
 
-        my $format = $c->stash->{download} =~ /csv/ ? 'csv' : 'xls';
+        my $format = $c->req->params->{download} =~ /csv/ ? 'csv' : 'xls';
 
         my @lines = ();
 
-        push @lines, [map { $_->{v} } @{ $c->stash->{rest}{headers} }];
+        push @lines, [ map { $_->{v} } @{ $c->stash->{rest}{headers} } ];
 
         foreach my $line ( @{ $c->stash->{rest}{lines} } ) {
             my @item = ();
@@ -330,9 +330,9 @@ sub check_for_download {
 
         my $path = ( $c->config->{downloads}{tmp_dir} || '/tmp' ) . '/' . rand() . $format;
 
-        Iota::Controller::VariaveisExemplo::lines2file($self, $c, $path, \@lines);
+        Iota::Controller::VariaveisExemplo::lines2file( $self, $c, $path, \@lines );
 
-        Iota::Controller::VariaveisExemplo::_download_and_detach($self, $c, $path, $name );
+        Iota::Controller::VariaveisExemplo::_download_and_detach( $self, $c, $path, $name );
 
         unlink $path;
 

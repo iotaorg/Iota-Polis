@@ -46,11 +46,14 @@ sub download_indicators_GET {
         $data_rs = $data_rs->search( { city_id => { 'in' => \@ids } } );
     }
 
+    my $name = 'dados-';
     if ( exists $params->{indicator_id} ) {
         my @ids = split /,/, $params->{indicator_id};
 
         $self->status_bad_request( $c, message => 'invalid indicator_id' ), $c->detach
           unless $self->int_validation(@ids);
+
+        $name .= eval { $c->model('DB::Indicator')->find( $ids[0] )->name_url };
 
         $data_rs = $data_rs->search( { indicator_id => { 'in' => \@ids } } );
     }
@@ -92,6 +95,8 @@ sub download_indicators_GET {
     }
 
     $self->status_ok( $c, entity => { data => \@objs } );
+
+    $self->check_for_download( $c, $name );
 }
 
 sub _period_pt {
@@ -125,6 +130,42 @@ sub date_validation {
       for @dates;
 
     return 1;
+}
+
+sub check_for_download {
+    my ( $self, $c, $name ) = @_;
+
+    if ( exists $c->req->params->{download} && $c->req->params->{download} =~ /csv|xls/ && $c->stash->{rest}{data} ) {
+        my $data = $c->stash->{rest}{data};
+        my $format = $c->req->params->{download} =~ /csv/ ? 'csv' : 'xls';
+        $c->stash->{type} = $format;
+        my @lines = ();
+
+        if ( @{$data} ) {
+            my @headers = sort keys %{ $data->[0] };
+
+            push @lines, \@headers;
+
+            foreach my $line ( @{$data} ) {
+                $line->{values_used} = encode_json($line->{values_used}) if exists $line->{values_used} && ref $line->{values_used};
+                my @item = ();
+                foreach my $header (@headers) {
+                    push @item, $line->{$header};
+                }
+                push @lines, \@item;
+            }
+
+        }
+
+        my $path = ( $c->config->{downloads}{tmp_dir} || '/tmp' ) . '/' . rand() . $format;
+
+        Iota::Controller::VariaveisExemplo::lines2file( $self, $c, $path, \@lines );
+
+        Iota::Controller::VariaveisExemplo::_download_and_detach( $self, $c, $path, $name );
+
+        unlink $path;
+    }
+
 }
 
 1;
