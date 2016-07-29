@@ -299,8 +299,17 @@ sub indicador_tabela_rot_txt : Local : Args(1) {
         }
     }
 
-    $self->status_ok( $c,
-        entity => { data => $rot, headers => \@headers, lines => \@lines, variable_colors => \%variable_colors } );
+    $self->status_ok(
+        $c,
+        entity => {
+            data            => $rot,
+            headers         => \@headers,
+            lines           => \@lines,
+            variable_colors => \%variable_colors,
+            indicator =>
+              { map { $_ => $indicador->$_ } qw/prepend_on_result append_on_result name formula formula_human/ }
+        }
+    );
 
     $self->check_for_download( $c, $indicador->name_url );
 }
