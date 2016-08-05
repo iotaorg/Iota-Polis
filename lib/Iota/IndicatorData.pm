@@ -30,6 +30,8 @@ sub upsert {
     my @indicators_ids = map { $_->id } @indicators;
     return unless scalar @indicators;
 
+    my %indicators_ids_sum_method = map { $_->id => $_->summarization_method } @indicators;
+
     # procura por todas as variaveis que esses indicadores podem utilizar
     my @used_variables =
       $self->schema->resultset('IndicatorVariable')->search( { indicator_id => { in => \@indicators_ids } } )->all;
@@ -55,18 +57,14 @@ sub upsert {
 
     my @upper_regions;
 
-    my ( $user_vs_institute, $institutes_conf );
+    my ( $user_vs_institute, $institutes_conf, $qtde_regions );
     if ( exists $params{regions_id} ) {
 
         my %region_by_lvl;
 
         my $uppers;
-        my $rs = $self->schema->resultset('Region')->search(
-            {
-                id => { 'in' => $params{regions_id} }
-            },
-            { columns => [ 'id', 'depth_level', 'upper_region', 'name' ] }
-        )->as_hashref;
+        my $rs = $self->schema->resultset('Region')->search( { id => { 'in' => $params{regions_id} } },
+            { columns => [ 'id', 'depth_level', 'upper_region', 'name' ] } )->as_hashref;
         while ( my $r = $rs->next ) {
             push @{ $region_by_lvl{ $r->{depth_level} } }, $r->{id};
 
@@ -79,6 +77,8 @@ sub upsert {
           if keys %region_by_lvl > 1;
 
         my ($region_level) = keys %region_by_lvl;
+
+        $qtde_regions = scalar @{ $region_by_lvl{$region_level} };
 
         @upper_regions = keys %{ $uppers->{$region_level} || {} };
 
@@ -131,13 +131,7 @@ sub upsert {
         # primeiro carrega todos os valores inputados pelos usuarios.
         $self->_get_values_periods_region(
             out => $inputed_values,
-            rs  => (
-                $rr_values_rs->search_rs(
-                    {
-                        generated_by_compute => undef
-                    }
-                )
-            )
+            rs  => ( $rr_values_rs->search_rs( { generated_by_compute => undef } ) )
         );
 
         #use DDP; p "inputed values" if $DEBUG;
@@ -148,13 +142,7 @@ sub upsert {
         # agora carrega todos os valores dos computadores.
         $self->_get_values_periods_region(
             out => $sum_values,
-            rs  => (
-                $rr_values_rs->search_rs(
-                    {
-                        generated_by_compute => 1
-                    }
-                )
-            )
+            rs  => ( $rr_values_rs->search_rs( { generated_by_compute => 1 } ) )
         );
 
         #use DDP; p "sum values" if $DEBUG;
@@ -164,27 +152,17 @@ sub upsert {
         # carrega a preferencia dos indicadores,
         # se eh pra ativar o valor falso se não existir soma
         # no mesmo ano.
-        $institutes_conf = {
-            map { $_->{id} => $_->{active_me_when_empty} } $self->schema->resultset('Institute')->search(
-                undef,
-                {
-                    result_class => 'DBIx::Class::ResultClass::HashRefInflator'
-                }
-            )->all
-        };
+        $institutes_conf =
+          { map { $_->{id} => $_->{active_me_when_empty} }
+              $self->schema->resultset('Institute')
+              ->search( undef, { result_class => 'DBIx::Class::ResultClass::HashRefInflator' } )->all };
 
         $user_vs_institute = {
             map { $_->{id} => $_->{institute_id} } $self->schema->resultset('User')->search(
-                {
-                    ( 'me.id' => $params{user_id} ) x !!exists $params{user_id}, active => 1
-                },
-                {
-                    result_class => 'DBIx::Class::ResultClass::HashRefInflator'
-                }
+                { ( 'me.id' => $params{user_id} ) x !!exists $params{user_id}, active => 1 },
+                { result_class => 'DBIx::Class::ResultClass::HashRefInflator' }
             )->all
         };
-
-
 
         #use DDP; p "user vs inst" if $DEBUG;
         #use DDP; p $user_vs_institute if $DEBUG;
@@ -290,6 +268,12 @@ sub upsert {
 
                             while ( my ( $variation, $actives ) = each %$variations ) {
 
+                                my $val = $variations->{$variation}[0];
+
+                                if ( $indicators_ids_sum_method{$indicator_id} eq 'avg' ) {
+                                    $val = $val / $qtde_regions;
+                                }
+
                                 my $ins = {
                                     user_id      => $user_id,
                                     indicator_id => $indicator_id,
@@ -301,7 +285,7 @@ sub upsert {
                                     institute_id   => $users_meta->{$user_id}{institute_id},
                                     variation_name => $variation,
 
-                                    value        => $variations->{$variation}[0],
+                                    value        => $val,
                                     sources      => $variations->{$variation}[1],
                                     values_used  => $variations->{$variation}[2],
                                     observations => $variations->{$variation}[3],
@@ -508,9 +492,7 @@ sub _get_values_variation {
             }
           ) x !!exists $params{valid_from},
 
-        (
-            'indicator_variables_variations_values.user_id' => { 'in' => $params{user_id} }
-          ) x !!exists $params{user_id},
+        ( 'indicator_variables_variations_values.user_id' => { 'in' => $params{user_id} } ) x !!exists $params{user_id},
 
         '-and' => [
             { 'indicator_variables_variations_values.value' => { '!=' => undef } },
@@ -772,8 +754,12 @@ sub _get_indicator_values {
                             );
                             my $valor = $formula->evaluate_with_alias(@calcvars);
 
-                            $out->{$region_id}{$user_id}{ $indicator->id }{$date}{$variation} =
-                              [ $valor, [ keys %sources ], decode('UTF-8', encode_json( {@calcvars} )), [ keys %observations ] ];
+                            $out->{$region_id}{$user_id}{ $indicator->id }{$date}{$variation} = [
+                                $valor,
+                                [ keys %sources ],
+                                decode( 'UTF-8', encode_json( {@calcvars} ) ),
+                                [ keys %observations ]
+                            ];
                         }
 
                     }
@@ -781,8 +767,12 @@ sub _get_indicator_values {
                         my $valor = $formula->evaluate(%values);
 
                         # '' = variacao
-                        $out->{$region_id}{$user_id}{ $indicator->id }{$date}{''} =
-                          [ $valor, [ keys %sources ], decode('UTF-8', encode_json( \%values )), [ keys %observations ] ];
+                        $out->{$region_id}{$user_id}{ $indicator->id }{$date}{''} = [
+                            $valor,
+                            [ keys %sources ],
+                            decode( 'UTF-8', encode_json( \%values ) ),
+                            [ keys %observations ]
+                        ];
                     }
 
                 }

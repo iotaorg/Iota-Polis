@@ -23,3 +23,4 @@ my $to  = shift;
 
 $data->upsert( regions_id => [ map { $_->id } $schema->resultset('Region')->search( { depth_level => $_ } )->all ], )
   for ( 3, 2, 1 );
+
