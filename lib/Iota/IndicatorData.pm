@@ -78,9 +78,24 @@ sub upsert {
 
         my ($region_level) = keys %region_by_lvl;
 
-        $qtde_regions = $self->schema->resultset('Region')->search({
-            upper_region => { in => $region_by_lvl{$region_level} }
-            })->count;
+        # gambiarra 2
+        if ( $region_level == 1 ) {
+            my @ids =
+              map { $_->id }
+              $self->schema->resultset('Region')->search( { upper_region => { in => $region_by_lvl{$region_level} } } )
+              ->all;
+
+            $qtde_regions = $self->schema->resultset('Region')->search( { upper_region => { in => \@ids } } )->count;
+use DDP; p "1 = $qtde_regions";
+        }
+        else {
+            $qtde_regions =
+              $self->schema->resultset('Region')->search( { upper_region => { in => $region_by_lvl{$region_level} } } )
+              ->count;
+
+              use DDP; p "$region_level = $qtde_regions";
+        }
+
 
         @upper_regions = keys %{ $uppers->{$region_level} || {} };
 
@@ -272,7 +287,7 @@ sub upsert {
 
                                 my $val = $variations->{$variation}[0];
 
-                                if ( $indicators_ids_sum_method{$indicator_id} eq 'avg' && $qtde_regions) {
+                                if ( $indicators_ids_sum_method{$indicator_id} eq 'avg' && $qtde_regions ) {
                                     $val = $val / $qtde_regions;
                                 }
 
