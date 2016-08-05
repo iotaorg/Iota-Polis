@@ -78,7 +78,9 @@ sub upsert {
 
         my ($region_level) = keys %region_by_lvl;
 
-        $qtde_regions = scalar @{ $region_by_lvl{$region_level} };
+        $qtde_regions = $self->schema->resultset('Region')->search({
+            upper_region => { in => $region_by_lvl{$region_level} }
+            })->count;
 
         @upper_regions = keys %{ $uppers->{$region_level} || {} };
 
@@ -270,7 +272,7 @@ sub upsert {
 
                                 my $val = $variations->{$variation}[0];
 
-                                if ( $indicators_ids_sum_method{$indicator_id} eq 'avg' ) {
+                                if ( $indicators_ids_sum_method{$indicator_id} eq 'avg' && $qtde_regions) {
                                     $val = $val / $qtde_regions;
                                 }
 
