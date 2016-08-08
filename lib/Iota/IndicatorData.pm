@@ -10,14 +10,14 @@ has schema => (
 );
 use Encode qw/decode/;
 
-our $DEBUG = 0;
+our $DEBUG = 1;
 
 sub upsert {
     my ( $self, %params ) = @_;
     my $ind_rs = $self->schema->resultset('Indicator')->search( { is_fake => 0 } );
 
-    #    use DDP;
-    #p \%params if $DEBUG;
+    use DDP;
+    p \%params if $DEBUG;
 
     #use DDP; p \%params if $DEBUG;
     # procura pelos indicadores enviados
@@ -231,6 +231,7 @@ sub upsert {
 
     my ($variation_var_per_ind) = $self->_get_indicator_var_variables( indicators => \@indicators );
 
+use DDP; p $period_values;
     my $results = $self->_get_indicator_values(
         indicators => \@indicators,
         values     => $period_values,
@@ -250,6 +251,7 @@ sub upsert {
       $results_count ? $self->get_users_meta( users => [ map { keys %{ $results->{$_} } } keys %$results ] ) : undef;
 
     my $regions_meta = $results_count ? $self->get_regions_meta( keys %$results ) : undef;
+
 
     $self->schema->txn_do(
         sub {
@@ -287,8 +289,12 @@ sub upsert {
 
                                 my $val = $variations->{$variation}[0];
 
+
+                                use DDP; p "$date $region_id antes = $val";
                                 if ( $indicators_ids_sum_method{$indicator_id} eq 'avg' && $qtde_regions ) {
+
                                     $val = $val / $qtde_regions;
+                                    use DDP; p "agora = $val $qtde_regions";
                                 }
 
                                 my $ins = {
@@ -341,6 +347,7 @@ sub qtde_upper_regions {
     my ( $self, $region_id ) = @_;
 
     return $region_cache->{$region_id} if $region_cache->{$region_id};
+
 
     my @upper_regions = $self->schema->resultset('Region')->search(
         { upper_region => $region_id },

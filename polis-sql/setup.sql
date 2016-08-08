@@ -26,3 +26,6 @@ update axis set name = 'nao-usado-no-polis' where id = 1;
 
 delete from axis where id > 1;
 
+update region set display_order = display_order + 100 where upper_region = 35063;
+update region set display_order = 99 where id = 35063;
+update region set display_order = 0 where id = 35054;

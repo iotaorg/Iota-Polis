@@ -21,6 +21,10 @@ my $data = Iota::IndicatorData->new( schema => $schema );
 my $min = shift;
 my $to  = shift;
 
-$data->upsert( regions_id => [ map { $_->id } $schema->resultset('Region')->search( { depth_level => $_ } )->all ], )
+$data->upsert(
+
+indicators => [28],
+
+regions_id => [ map { $_->id } $schema->resultset('Region')->search( { depth_level => $_ } )->all ], )
   for ( 3, 2, 1 );
 

@@ -195,7 +195,8 @@ sub indicador_tabela_rot_regiao : Local : Args(1) {
         $lines{ $r->{valid_from} } = 1;
     }
 
-    my @headers = map { { k => $_->{id}, v => $_->{name} } } $c->model('DB::Region')->search(
+    my @headers =
+      map { { k => $_->{id}, v => $_->{name}, b => $_->{depth_level} <= 2 ? 1 : 0 } } $c->model('DB::Region')->search(
         {
 
             id => {
@@ -207,11 +208,11 @@ sub indicador_tabela_rot_regiao : Local : Args(1) {
             }
         },
         {
-            columns      => [qw/name id/],
+            columns      => [qw/name id depth_level/],
             result_class => 'DBIx::Class::ResultClass::HashRefInflator',
-            order_by     => [ 'display_order', 'name' ]
+            order_by     => [ 'display_order',  'name' ]
         }
-    )->all;
+      )->all;
 
     my @lines = sort { $a->{k} cmp $b->{k} } map { { k => $_, v => &_limpa_ano($_) } } keys %lines;
 
@@ -261,7 +262,8 @@ sub indicador_tabela_rot_txt : Local : Args(1) {
         }
     }
 
-    my @lines = map { { k => $_->{id}, v => $_->{name} } } $c->model('DB::Region')->search(
+    my @lines =
+      map { { k => $_->{id}, v => $_->{name}, b => $_->{depth_level} <= 2 ? 1 : 0 } } $c->model('DB::Region')->search(
         {
             id => {
                 ( $ucs ? 'not in' : 'in' ) => [
@@ -273,11 +275,11 @@ sub indicador_tabela_rot_txt : Local : Args(1) {
             }
         },
         {
-            columns      => [qw/name id/],
+            columns      => [qw/name id depth_level/],
             result_class => 'DBIx::Class::ResultClass::HashRefInflator',
             order_by     => [ 'display_order', 'name' ]
         }
-    )->all;
+      )->all;
 
     my ( $formula, @variables_id ) = ( $indicador->formula );
     push @variables_id, $1 while ( $formula =~ /\$(\d+)\b/go );
