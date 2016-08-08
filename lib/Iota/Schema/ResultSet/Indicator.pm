@@ -366,6 +366,11 @@ sub action_specs {
             my $var             = $self->find( delete $values{id} );
             my $formula_changed = 0;
 
+            if (   exists $values{summarization_method}
+                && $values{summarization_method}
+                && $values{summarization_method} ne $var->summarization_method ) {
+                $formula_changed++;
+            }
             if (   exists $values{formula}
                 && $values{formula}
                 && $values{formula} ne $var->formula ) {
