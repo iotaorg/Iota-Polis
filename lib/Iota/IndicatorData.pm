@@ -78,6 +78,7 @@ sub upsert {
 
         my ($region_level) = keys %region_by_lvl;
 
+=pod
         # gambiarra 2
         if ( $region_level == 1 ) {
             my @ids =
@@ -86,16 +87,13 @@ sub upsert {
               ->all;
 
             $qtde_regions = $self->schema->resultset('Region')->search( { upper_region => { in => \@ids } } )->count;
-use DDP; p "1 = $qtde_regions";
         }
         else {
             $qtde_regions =
               $self->schema->resultset('Region')->search( { upper_region => { in => $region_by_lvl{$region_level} } } )
               ->count;
-
-              use DDP; p "$region_level = $qtde_regions";
         }
-
+=cut
 
         @upper_regions = keys %{ $uppers->{$region_level} || {} };
 
@@ -277,6 +275,8 @@ use DDP; p "1 = $qtde_regions";
             while ( my ( $region_id, $region_data ) = each %$results ) {
                 undef $region_id if $region_id eq 'null';
 
+                my $qtde_regions = $region_id ? $self->qtde_upper_regions($region_id) : undef;
+
                 while ( my ( $user_id, $indicators ) = each %$region_data ) {
 
                     while ( my ( $indicator_id, $dates ) = each %$indicators ) {
@@ -332,6 +332,33 @@ use DDP; p "1 = $qtde_regions";
         }
     );
 
+}
+
+my $region_cache = {};
+
+sub qtde_upper_regions {
+
+    my ( $self, $region_id ) = @_;
+
+    return $region_cache->{$region_id} if $region_cache->{$region_id};
+
+    my @upper_regions = $self->schema->resultset('Region')->search(
+        { upper_region => $region_id },
+        {
+            result_class => 'DBIx::Class::ResultClass::HashRefInflator',
+            columns      => [qw/id depth_level/]
+        }
+    )->all;
+
+    my $count = scalar grep { $_->{depth_level} == 3 } @upper_regions;
+
+    foreach my $up (@upper_regions) {
+        $count += $self->qtde_upper_regions( $up->{id} );
+    }
+
+    use DDP;
+    p "qtde_upper_regions $region_id = $count";
+    return $region_cache->{$region_id} = $count;
 }
 
 # retorna cidade / institudo dos usuarios
