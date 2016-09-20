@@ -10,14 +10,14 @@ has schema => (
 );
 use Encode qw/decode/;
 
-our $DEBUG = 1;
+#our $DEBUG = 1;
 
 sub upsert {
     my ( $self, %params ) = @_;
     my $ind_rs = $self->schema->resultset('Indicator')->search( { is_fake => 0 } );
 
-    use DDP;
-    p \%params if $DEBUG;
+    #use DDP;
+    #p \%params if $DEBUG;
 
     #use DDP; p \%params if $DEBUG;
     # procura pelos indicadores enviados
@@ -290,11 +290,11 @@ use DDP; p $period_values;
                                 my $val = $variations->{$variation}[0];
 
 
-                                use DDP; p "$date $region_id antes = $val";
+                                #use DDP; p "$date $region_id antes = $val";
                                 if ( $indicators_ids_sum_method{$indicator_id} eq 'avg' && $qtde_regions ) {
 
                                     $val = $val / $qtde_regions;
-                                    use DDP; p "agora = $val $qtde_regions";
+                                    #use DDP; p "agora = $val $qtde_regions";
                                 }
 
                                 my $ins = {
@@ -363,8 +363,8 @@ sub qtde_upper_regions {
         $count += $self->qtde_upper_regions( $up->{id} );
     }
 
-    use DDP;
-    p "qtde_upper_regions $region_id = $count";
+    #use DDP;
+    #p "qtde_upper_regions $region_id = $count";
     return $region_cache->{$region_id} = $count;
 }
 
