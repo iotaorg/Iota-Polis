@@ -122,3 +122,9 @@ insert into foo (name, lvl) values ( 'RPPN Toque Toque Pequeno' , '41');
 
 insert into region (name, name_url, display_order, city_id, depth_level , created_by ) select name, replace( lower( unaccent(name)), ' ', '-'), lvl, 1 , 1, 1 from foo;
 drop table foo;
+
+
+update region set display_order = 520 where id = 35054;
+
+update region set display_order = display_order + 200 where upper_region = 35054;
+update region set display_order = display_order + 200 where upper_region = 35054;
