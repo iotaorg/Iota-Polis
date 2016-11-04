@@ -162,6 +162,12 @@ apenas faz as contas se as regioes abaixos estao com todas as variaveis preenchi
 
 o dado da regiao acima ira se consolidar como ativo caso nao exista valores para as subs.
 
+=head2 user_overwrite_computerized
+
+  data_type: 'boolean'
+  default_value: false
+  is_nullable: 0
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -216,6 +222,8 @@ __PACKAGE__->add_columns(
   "aggregate_only_if_full",
   { data_type => "boolean", default_value => \"false", is_nullable => 0 },
   "active_me_when_empty",
+  { data_type => "boolean", default_value => \"false", is_nullable => 0 },
+  "user_overwrite_computerized",
   { data_type => "boolean", default_value => \"false", is_nullable => 0 },
 );
 
@@ -293,8 +301,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-12-15 14:24:21
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:3NawtKbYjXds2QofFa3lJA
+# Created by DBIx::Class::Schema::Loader v0.07043 @ 2016-11-04 08:10:25
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:xtFJF2Q962FkpDyELLyyng
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;

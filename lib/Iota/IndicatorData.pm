@@ -57,7 +57,7 @@ sub upsert {
 
     my @upper_regions;
 
-    my ( $user_vs_institute, $institutes_conf, $qtde_regions );
+    my ( $user_vs_institute, $institutes_conf, $institutes_conf_overwrite, $qtde_regions );
     if ( exists $params{regions_id} ) {
 
         my %region_by_lvl;
@@ -172,6 +172,11 @@ sub upsert {
               $self->schema->resultset('Institute')
               ->search( undef, { result_class => 'DBIx::Class::ResultClass::HashRefInflator' } )->all };
 
+        $institutes_conf_overwrite =
+          { map { $_->{id} => $_->{user_overwrite_computerized} }
+              $self->schema->resultset('Institute')
+              ->search( undef, { result_class => 'DBIx::Class::ResultClass::HashRefInflator' } )->all };
+
         $user_vs_institute = {
             map { $_->{id} => $_->{institute_id} } $self->schema->resultset('User')->search(
                 { ( 'me.id' => $params{user_id} ) x !!exists $params{user_id}, active => 1 },
@@ -182,10 +187,11 @@ sub upsert {
         #use DDP; p "user vs inst" if $DEBUG;
         #use DDP; p $user_vs_institute if $DEBUG;
         $self->_merge_regions_values(
-            sum               => $sum_values,
-            inputed           => $inputed_values,
-            institutes        => $institutes_conf,
-            user_vs_institute => $user_vs_institute,
+            sum                  => $sum_values,
+            inputed              => $inputed_values,
+            institutes           => $institutes_conf,
+            institutes_overwrite => $institutes_conf_overwrite,
+            user_vs_institute    => $user_vs_institute,
         );
 
         #use DDP; p "FINAL \$inputed_values" if $DEBUG;
@@ -221,8 +227,9 @@ sub upsert {
 
         ( valid_from => $params{dates} ) x !!exists $params{dates},
 
-        institutes        => $institutes_conf,
-        user_vs_institute => $user_vs_institute,
+        institutes           => $institutes_conf,
+        institutes_overwrite => $institutes_conf_overwrite,
+        user_vs_institute    => $user_vs_institute,
     );
 
     # limpa alguma memoria
@@ -231,7 +238,6 @@ sub upsert {
 
     my ($variation_var_per_ind) = $self->_get_indicator_var_variables( indicators => \@indicators );
 
-use DDP; p $period_values;
     my $results = $self->_get_indicator_values(
         indicators => \@indicators,
         values     => $period_values,
@@ -251,7 +257,6 @@ use DDP; p $period_values;
       $results_count ? $self->get_users_meta( users => [ map { keys %{ $results->{$_} } } keys %$results ] ) : undef;
 
     my $regions_meta = $results_count ? $self->get_regions_meta( keys %$results ) : undef;
-
 
     $self->schema->txn_do(
         sub {
@@ -289,11 +294,11 @@ use DDP; p $period_values;
 
                                 my $val = $variations->{$variation}[0];
 
-
                                 #use DDP; p "$date $region_id antes = $val";
                                 if ( $indicators_ids_sum_method{$indicator_id} eq 'avg' && $qtde_regions ) {
 
                                     $val = $val / $qtde_regions;
+
                                     #use DDP; p "agora = $val $qtde_regions";
                                 }
 
@@ -347,7 +352,6 @@ sub qtde_upper_regions {
     my ( $self, $region_id ) = @_;
 
     return $region_cache->{$region_id} if $region_cache->{$region_id};
-
 
     my @upper_regions = $self->schema->resultset('Region')->search(
         { upper_region => $region_id },
@@ -409,6 +413,30 @@ sub get_regions_meta {
 # sum     = valores somados
 sub _merge_regions_values {
     my ( $self, %conf ) = @_;
+
+    # se o institutes_overwrite estiver ligado
+    # o inputed falsa, e transforma o inputed em 1 se nao existir
+    while ( my ( $region_id, $users ) = each %{ $conf{inputed}{0} } ) {
+        next if $region_id eq 'null';
+
+        while ( my ( $user_id, $dates ) = each %{$users} ) {
+
+            next unless $conf{institutes_overwrite}{ $conf{user_vs_institute}{$user_id} };
+
+            while ( my ( $date, $variables ) = each %{$dates} ) {
+
+                while ( my ( $varid, $value ) = each %{$variables} ) {
+
+                    # se ja tem valor ativo pro ano, ele fica.
+                    next if exists $conf{inputed}{1}{$region_id}{$user_id}{$date}{$varid};
+
+                    # fala que o inptuado eh a soma.
+                    $conf{inputed}{1}{$region_id}{$user_id}{$date}{$varid} = $value;
+                }
+
+            }
+        }
+    }
 
     # corre a soma ativa, e transforma o inputed em 1 se nao existir.
     while ( my ( $region_id, $users ) = each %{ $conf{sum}{1} } ) {
@@ -581,6 +609,35 @@ sub _get_values_variation {
         }
 
         #############
+
+        # se o institutes_overwrite estiver ligado
+        # o inputed falsa, e transforma o inputed em 1 se nao existir
+        while ( my ( $region_id, $users ) = each %{ $loads->{inputed}{0} } ) {
+            next if $region_id eq 'null';
+
+            while ( my ( $user_id, $var_variation_ids ) = each %{$users} ) {
+
+                next unless $params{institutes_overwrite}{ $params{user_vs_institute}{$user_id} };
+
+                while ( my ( $var_variation_id, $variation_names ) = each %{$var_variation_ids} ) {
+
+                    while ( my ( $variation_name, $valid_froms ) = each %{$variation_names} ) {
+
+                        while ( my ( $date, $value ) = each %{$valid_froms} ) {
+
+                            # se ja tem valor ativo pro ano, ele fica.
+                            next
+                              if exists $loads->{inputed}{1}{$region_id}{$user_id}{$var_variation_id}{$variation_name}
+                              {$date};
+
+                            # fala que o inptuado eh a soma.
+                            $loads->{inputed}{1}{$region_id}{$user_id}{$var_variation_id}{$variation_name}{$date} =
+                              $value;
+                        }
+                    }
+                }
+            }
+        }
 
         # corre a soma, e transforma o inputed em 1 se nao existir.
         while ( my ( $region_id, $users ) = each %{ $loads->{sum}{1} } ) {

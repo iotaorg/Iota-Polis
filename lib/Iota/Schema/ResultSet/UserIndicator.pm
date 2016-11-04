@@ -73,7 +73,6 @@ sub verifiers_specs {
                         my $valid_from =
                           eval { $schema->f_extract_period_edge( ( $var ? $var->period : 'yearly' ), $date ) }
                           ->{period_begin};
-use DDP; p $valid_from;
 
                         return $self->search(
                             {

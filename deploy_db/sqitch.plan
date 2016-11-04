@@ -43,3 +43,4 @@ end-users-mail-queue [end-users-by-network] 2014-07-08T14:02:35Z cron <renato.cr
 0076-new-download [0075-indicadores-campos] 2016-07-21T23:11:33Z renatopc,,, <renato@oodcronpc> # view
 0077-indicator_order [0076-new-download] 2016-07-25T18:24:14Z renatopc,,, <renato@oodcronpc> # indicator order
 0078-fix-order [0077-indicator_order] 2016-10-31T19:18:25Z renatopc,,, <renato@oodcronpc> # again
+0079-force-overwrite [0078-fix-order] 2016-11-03T13:37:52Z renatopc,,, <renato@oodcronpc> # use user inputed values over computed
